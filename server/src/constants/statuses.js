@@ -1,27 +1,26 @@
-const VEHICLE_STATUS = {
-  AVAILABLE: 'Available',
-  ON_TRIP: 'On Trip',
-  IN_SHOP: 'In Shop',
-  RETIRED: 'Retired',
+export const VEHICLE_STATUS = {
+  AVAILABLE: 'AVAILABLE',
+  ON_TRIP: 'ON_TRIP',
+  IN_SHOP: 'IN_SHOP',
+  RETIRED: 'RETIRED',
 };
 
-const DRIVER_STATUS = {
-  AVAILABLE: 'Available',
-  ON_TRIP: 'On Trip',
-  OFF_DUTY: 'Off Duty',
-  SUSPENDED: 'Suspended',
+export const DRIVER_STATUS = {
+  AVAILABLE: 'AVAILABLE',
+  ON_TRIP: 'ON_TRIP',
+  OFF_DUTY: 'OFF_DUTY',
+  SUSPENDED: 'SUSPENDED',
 };
 
-const TRIP_STATUS = {
-  DRAFT: 'Draft',
-  DISPATCHED: 'Dispatched',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
+export const TRIP_STATUS = {
+  DRAFT: 'DRAFT',
+  DISPATCHED: 'DISPATCHED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
 };
 
-const MAINTENANCE_STATUS = {
-  ACTIVE: 'Active',
-  CLOSED: 'Closed',
+export const MAINTENANCE_STATUS = {
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
 };
-
-module.exports = { VEHICLE_STATUS, DRIVER_STATUS, TRIP_STATUS, MAINTENANCE_STATUS };
