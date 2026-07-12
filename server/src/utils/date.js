@@ -1,5 +1,3 @@
-const isExpired = (date) => new Date(date) < new Date();
+export const isExpired = (date) => new Date(date) < new Date();
 
-const toISODate = (date) => new Date(date).toISOString();
-
-module.exports = { isExpired, toISODate };
+export const toISODate = (date) => new Date(date).toISOString();
