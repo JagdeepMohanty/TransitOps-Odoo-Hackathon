@@ -11,7 +11,7 @@
 ───────────────────────────────────────────────────────────── */
 @layer base {
   html {
-    @apply dark antialiased;
+    @apply antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     color-scheme: dark;
   }
