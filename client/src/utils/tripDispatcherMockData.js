@@ -1,0 +1,180 @@
+// ─── Trip Dispatcher Mock Data ────────────────────────────────
+
+export const DISPATCHER_VEHICLES = [
+  { id: 'V001', plate: 'KA-01-AB-1234', make: 'Tata',     model: 'Prima 4028.S', type: 'Heavy Truck',  status: 'available',   capacity: 28000, odometer: 48200, fuel: 72 },
+  { id: 'V004', plate: 'DL-04-GH-3456', make: 'Mahindra', model: 'Blazo X 35',   type: 'Heavy Truck',  status: 'available',   capacity: 35000, odometer: 95400, fuel: 55 },
+  { id: 'V005', plate: 'TN-05-IJ-7890', make: 'Tata',     model: 'LPT 1613',     type: 'Medium Truck', status: 'available',   capacity: 16000, odometer: 12300, fuel: 88 },
+  { id: 'V008', plate: 'UP-08-OP-0123', make: 'Eicher',   model: 'Pro 3015',     type: 'Light Truck',  status: 'available',   capacity: 7500,  odometer: 27800, fuel: 61 },
+  { id: 'V002', plate: 'KA-02-CD-5678', make: 'Ashok',    model: 'Leyland 2518', type: 'Medium Truck', status: 'on_trip',     capacity: 25000, odometer: 72100, fuel: 40 },
+  { id: 'V006', plate: 'GJ-06-KL-2345', make: 'Volvo',    model: 'FH 500',       type: 'Heavy Truck',  status: 'on_trip',     capacity: 40000, odometer: 58700, fuel: 30 },
+  { id: 'V003', plate: 'MH-03-EF-9012', make: 'Eicher',   model: 'Pro 6031',     type: 'Light Truck',  status: 'maintenance', capacity: 6000,  odometer: 31500, fuel: 0  },
+  { id: 'V007', plate: 'RJ-07-MN-6789', make: 'Ashok',    model: 'Leyland 1616', type: 'Light Truck',  status: 'retired',     capacity: 5000,  odometer: 142000,fuel: 0  },
+];
+
+export const DISPATCHER_DRIVERS = [
+  { id: 'D001', name: 'Ravi Kumar',   phone: '+91-98765-43210', license: 'KA-DL-2019-001234', licenseExpiry: '2026-03-15', status: 'available', trips: 142, rating: 4.8 },
+  { id: 'D003', name: 'Amit Sharma',  phone: '+91-76543-21098', license: 'DL-DL-2020-009012', licenseExpiry: '2027-11-30', status: 'available', trips: 215, rating: 4.9 },
+  { id: 'D004', name: 'Priya Menon',  phone: '+91-65432-10987', license: 'TN-DL-2021-003456', licenseExpiry: '2026-09-10', status: 'available', trips: 67,  rating: 4.7 },
+  { id: 'D006', name: 'Kavya Reddy',  phone: '+91-43210-98765', license: 'AP-DL-2022-001122', licenseExpiry: '2028-05-15', status: 'available', trips: 34,  rating: 4.9 },
+  { id: 'D008', name: 'Sunita Patel', phone: '+91-21098-76543', license: 'GJ-DL-2020-005566', licenseExpiry: '2026-08-22', status: 'available', trips: 89,  rating: 4.7 },
+  { id: 'D002', name: 'Suresh Nair',  phone: '+91-87654-32109', license: 'KL-DL-2018-005678', licenseExpiry: '2025-07-20', status: 'on_trip',   trips: 98,  rating: 4.6 },
+  { id: 'D005', name: 'Deepak Verma', phone: '+91-54321-09876', license: 'GJ-DL-2017-007890', licenseExpiry: '2025-02-28', status: 'on_trip',   trips: 178, rating: 4.5 },
+  { id: 'D007', name: 'Mohan Das',    phone: '+91-32109-87654', license: 'WB-DL-2016-003344', licenseExpiry: '2024-12-31', status: 'suspended', trips: 312, rating: 4.3 },
+];
+
+export const DISPATCHER_TRIPS = [
+  {
+    id: 'TRP-2024-001', vehicle: 'KA-02-CD-5678', vehicleModel: 'Ashok Leyland 2518',
+    driver: 'Suresh Nair', driverId: 'D002', source: 'Mumbai, MH', destination: 'Pune, MH',
+    cargoWeight: 18500, cargoType: 'Electronics', distance: 148, duration: '3h 20m',
+    status: 'dispatched', dispatchTime: '2024-12-14 08:30', eta: '2024-12-14 11:50',
+    notes: 'Fragile cargo — handle with care', createdAt: '2024-12-13 18:00',
+    timeline: [
+      { event: 'Trip Created',    time: '2024-12-13 18:00', done: true  },
+      { event: 'Driver Assigned', time: '2024-12-13 18:05', done: true  },
+      { event: 'Vehicle Assigned',time: '2024-12-13 18:10', done: true  },
+      { event: 'Trip Dispatched', time: '2024-12-14 08:30', done: true  },
+      { event: 'On Route',        time: '2024-12-14 08:45', done: true  },
+      { event: 'Delivered',       time: null,               done: false },
+      { event: 'Completed',       time: null,               done: false },
+    ],
+  },
+  {
+    id: 'TRP-2024-002', vehicle: 'GJ-06-KL-2345', vehicleModel: 'Volvo FH 500',
+    driver: 'Deepak Verma', driverId: 'D005', source: 'Ahmedabad, GJ', destination: 'Surat, GJ',
+    cargoWeight: 32000, cargoType: 'Chemicals', distance: 265, duration: '5h 10m',
+    status: 'dispatched', dispatchTime: '2024-12-14 07:00', eta: '2024-12-14 12:10',
+    notes: 'Hazardous material — follow safety protocol', createdAt: '2024-12-13 20:00',
+    timeline: [
+      { event: 'Trip Created',    time: '2024-12-13 20:00', done: true  },
+      { event: 'Driver Assigned', time: '2024-12-13 20:10', done: true  },
+      { event: 'Vehicle Assigned',time: '2024-12-13 20:15', done: true  },
+      { event: 'Trip Dispatched', time: '2024-12-14 07:00', done: true  },
+      { event: 'On Route',        time: '2024-12-14 07:20', done: true  },
+      { event: 'Delivered',       time: null,               done: false },
+      { event: 'Completed',       time: null,               done: false },
+    ],
+  },
+  {
+    id: 'TRP-2024-003', vehicle: 'KA-01-AB-1234', vehicleModel: 'Tata Prima 4028.S',
+    driver: 'Ravi Kumar', driverId: 'D001', source: 'Bangalore, KA', destination: 'Chennai, TN',
+    cargoWeight: 22000, cargoType: 'Auto Parts', distance: 346, duration: '6h 45m',
+    status: 'completed', dispatchTime: '2024-12-13 06:00', eta: '2024-12-13 12:45',
+    notes: '', createdAt: '2024-12-12 22:00',
+    timeline: [
+      { event: 'Trip Created',    time: '2024-12-12 22:00', done: true },
+      { event: 'Driver Assigned', time: '2024-12-12 22:05', done: true },
+      { event: 'Vehicle Assigned',time: '2024-12-12 22:10', done: true },
+      { event: 'Trip Dispatched', time: '2024-12-13 06:00', done: true },
+      { event: 'On Route',        time: '2024-12-13 06:15', done: true },
+      { event: 'Delivered',       time: '2024-12-13 12:30', done: true },
+      { event: 'Completed',       time: '2024-12-13 12:45', done: true },
+    ],
+  },
+  {
+    id: 'TRP-2024-004', vehicle: 'TN-05-IJ-7890', vehicleModel: 'Tata LPT 1613',
+    driver: 'Priya Menon', driverId: 'D004', source: 'Hyderabad, TS', destination: 'Vijayawada, AP',
+    cargoWeight: 14000, cargoType: 'FMCG', distance: 275, duration: '5h 30m',
+    status: 'draft', dispatchTime: null, eta: null,
+    notes: 'Perishable goods — priority dispatch', createdAt: '2024-12-14 09:00',
+    timeline: [
+      { event: 'Trip Created',    time: '2024-12-14 09:00', done: true  },
+      { event: 'Driver Assigned', time: '2024-12-14 09:05', done: true  },
+      { event: 'Vehicle Assigned',time: '2024-12-14 09:10', done: true  },
+      { event: 'Trip Dispatched', time: null,               done: false },
+      { event: 'On Route',        time: null,               done: false },
+      { event: 'Delivered',       time: null,               done: false },
+      { event: 'Completed',       time: null,               done: false },
+    ],
+  },
+  {
+    id: 'TRP-2024-005', vehicle: 'UP-08-OP-0123', vehicleModel: 'Eicher Pro 3015',
+    driver: 'Kavya Reddy', driverId: 'D006', source: 'Kolkata, WB', destination: 'Bhubaneswar, OD',
+    cargoWeight: 6800, cargoType: 'Steel', distance: 440, duration: '8h 20m',
+    status: 'draft', dispatchTime: null, eta: null,
+    notes: '', createdAt: '2024-12-14 10:00',
+    timeline: [
+      { event: 'Trip Created',    time: '2024-12-14 10:00', done: true  },
+      { event: 'Driver Assigned', time: null,               done: false },
+      { event: 'Vehicle Assigned',time: null,               done: false },
+      { event: 'Trip Dispatched', time: null,               done: false },
+      { event: 'On Route',        time: null,               done: false },
+      { event: 'Delivered',       time: null,               done: false },
+      { event: 'Completed',       time: null,               done: false },
+    ],
+  },
+  {
+    id: 'TRP-2024-006', vehicle: 'DL-04-GH-3456', vehicleModel: 'Mahindra Blazo X 35',
+    driver: 'Amit Sharma', driverId: 'D003', source: 'Delhi, DL', destination: 'Jaipur, RJ',
+    cargoWeight: 28000, cargoType: 'Textiles', distance: 282, duration: '5h 00m',
+    status: 'completed', dispatchTime: '2024-12-12 07:00', eta: '2024-12-12 12:00',
+    notes: '', createdAt: '2024-12-11 19:00',
+    timeline: [
+      { event: 'Trip Created',    time: '2024-12-11 19:00', done: true },
+      { event: 'Driver Assigned', time: '2024-12-11 19:10', done: true },
+      { event: 'Vehicle Assigned',time: '2024-12-11 19:15', done: true },
+      { event: 'Trip Dispatched', time: '2024-12-12 07:00', done: true },
+      { event: 'On Route',        time: '2024-12-12 07:20', done: true },
+      { event: 'Delivered',       time: '2024-12-12 11:50', done: true },
+      { event: 'Completed',       time: '2024-12-12 12:00', done: true },
+    ],
+  },
+  {
+    id: 'TRP-2024-007', vehicle: 'KA-01-AB-1234', vehicleModel: 'Tata Prima 4028.S',
+    driver: 'Ravi Kumar', driverId: 'D001', source: 'Chennai, TN', destination: 'Coimbatore, TN',
+    cargoWeight: 20000, cargoType: 'Machinery', distance: 500, duration: '9h 00m',
+    status: 'cancelled', dispatchTime: null, eta: null,
+    notes: 'Cancelled due to route blockage', createdAt: '2024-12-10 14:00',
+    timeline: [
+      { event: 'Trip Created',    time: '2024-12-10 14:00', done: true  },
+      { event: 'Driver Assigned', time: '2024-12-10 14:05', done: true  },
+      { event: 'Vehicle Assigned',time: '2024-12-10 14:10', done: true  },
+      { event: 'Trip Dispatched', time: null,               done: false },
+      { event: 'On Route',        time: null,               done: false },
+      { event: 'Delivered',       time: null,               done: false },
+      { event: 'Completed',       time: null,               done: false },
+    ],
+  },
+  {
+    id: 'TRP-2024-008', vehicle: 'TN-05-IJ-7890', vehicleModel: 'Tata LPT 1613',
+    driver: 'Sunita Patel', driverId: 'D008', source: 'Pune, MH', destination: 'Nagpur, MH',
+    cargoWeight: 12000, cargoType: 'Pharmaceuticals', distance: 228, duration: '4h 30m',
+    status: 'completed', dispatchTime: '2024-12-11 05:30', eta: '2024-12-11 10:00',
+    notes: 'Temperature-sensitive cargo', createdAt: '2024-12-10 20:00',
+    timeline: [
+      { event: 'Trip Created',    time: '2024-12-10 20:00', done: true },
+      { event: 'Driver Assigned', time: '2024-12-10 20:10', done: true },
+      { event: 'Vehicle Assigned',time: '2024-12-10 20:15', done: true },
+      { event: 'Trip Dispatched', time: '2024-12-11 05:30', done: true },
+      { event: 'On Route',        time: '2024-12-11 05:45', done: true },
+      { event: 'Delivered',       time: '2024-12-11 09:55', done: true },
+      { event: 'Completed',       time: '2024-12-11 10:00', done: true },
+    ],
+  },
+];
+
+export const TRIP_PROGRESS_DATA = [
+  { day: 'Mon', trips: 4, distance: 820,  cargo: 68 },
+  { day: 'Tue', trips: 6, distance: 1240, cargo: 95 },
+  { day: 'Wed', trips: 3, distance: 590,  cargo: 42 },
+  { day: 'Thu', trips: 7, distance: 1580, cargo: 118 },
+  { day: 'Fri', trips: 5, distance: 1020, cargo: 78 },
+  { day: 'Sat', trips: 8, distance: 1890, cargo: 142 },
+  { day: 'Sun', trips: 2, distance: 410,  cargo: 28 },
+];
+
+export const TRIP_STATUS_DATA = [
+  { name: 'Completed',  value: 4, color: '#22C55E' },
+  { name: 'Dispatched', value: 2, color: '#3B82F6' },
+  { name: 'Draft',      value: 2, color: '#94A3B8' },
+  { name: 'Cancelled',  value: 1, color: '#EF4444' },
+];
+
+export const DISPATCHER_KPI = {
+  draft:         { trend: '+1',   trendUp: false },
+  dispatched:    { trend: '+2',   trendUp: true  },
+  completed:     { trend: '+18%', trendUp: true  },
+  cancelled:     { trend: '-2',   trendUp: true  },
+  totalDistance: { trend: '+12%', trendUp: true  },
+  fleetUtil:     { trend: '+5%',  trendUp: true  },
+};

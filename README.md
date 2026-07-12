@@ -9,7 +9,7 @@ TransitOps enables fleet managers, dispatchers, safety officers, and financial a
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18, Vite, Tailwind CSS |
+| Frontend | React 18, Vite, Tailwind CSS, Framer Motion |
 | Backend | Node.js, Express.js, ES Modules |
 | Database | MySQL 8.x |
 | ORM | Prisma 5.x |
@@ -19,7 +19,7 @@ TransitOps enables fleet managers, dispatchers, safety officers, and financial a
 
 ---
 
-## Hour 1 Status — Backend Foundation Complete
+## Backend Status — Complete
 
 | Component | Status |
 |-----------|--------|
@@ -36,14 +36,40 @@ TransitOps enables fleet managers, dispatchers, safety officers, and financial a
 | Root dev scripts | ✅ |
 | API contract document | ✅ |
 | Database setup guide | ✅ |
-| Authentication (JWT + RBAC) | 🔜 Hour 2 |
-| Vehicle CRUD | 🔜 Hour 2 |
-| Driver CRUD | 🔜 Hour 2 |
-| Trip dispatch workflow | 🔜 Hour 2 |
-| Maintenance management | 🔜 Hour 2 |
-| Fuel logs & expenses | 🔜 Hour 2 |
-| Dashboard KPIs | 🔜 Hour 2 |
-| Reports & CSV export | 🔜 Hour 3 |
+| Authentication (JWT + RBAC) | ✅ |
+| Vehicle CRUD | ✅ |
+| Driver CRUD | ✅ |
+| Trip dispatch workflow | ✅ |
+| Maintenance management | ✅ |
+| Fuel logs & expenses | ✅ |
+| Dashboard KPIs | ✅ |
+| Reports & CSV export | ✅ |
+
+---
+
+## Frontend Status — Settings & RBAC Complete
+
+| Component | Status |
+|-----------|--------|
+| Settings Page (Framer Motion layout) | ✅ |
+| Settings Header (gradient border, animated buttons) | ✅ |
+| KPI Cards (glassmorphism, sparklines, hover glow) | ✅ |
+| User Management Table (sticky header, expandable rows) | ✅ |
+| Role & Permission Matrix (toggle cells, expand detail) | ✅ |
+| Application Settings Card (premium form layout) | ✅ |
+| Security Settings Card (password, 2FA, sessions, API keys) | ✅ |
+| Notification Settings Card (premium toggles, digest) | ✅ |
+| Activity Timeline (animated, live audit log) | ✅ |
+| User Modal (add / edit / delete) | ✅ |
+| Role Modal (create / edit with permission grid) | ✅ |
+| RoleBadge & StatusBadge (polished, glow on hover) | ✅ |
+| Roles Card (premium cards, permissions count) | ✅ |
+| Settings Mock Data (14 users, richer roles & activity) | ✅ |
+| Dashboard | ✅ |
+| Vehicles, Drivers, Trips | ✅ |
+| Finance (Fuel & Expenses) | ✅ |
+| Maintenance | ✅ |
+| Reports & Analytics | ✅ |
 
 ---
 
@@ -145,6 +171,47 @@ See [`docs/DATABASE.md`](docs/DATABASE.md) for local and managed MySQL setup ins
 
 ---
 
+## Pages & Routes
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/` | Dashboard | Fleet KPIs, charts, recent trips |
+| `/vehicles` | Vehicles | Vehicle registry & status |
+| `/drivers` | Drivers | Driver profiles & safety scores |
+| `/trips` | Trips | Trip dispatcher & timeline |
+| `/maintenance` | Maintenance | Scheduled & unscheduled maintenance |
+| `/fuel` | Fuel Logs | Fuel tracking & refill logs |
+| `/expenses` | Expenses | Expense management & budgets |
+| `/reports` | Reports | Analytics, ROI, CSV export |
+| `/settings` | Settings | RBAC, users, security, notifications |
+| `/profile` | Profile | User profile management |
+
+---
+
+## Settings & RBAC
+
+The `/settings` page is a full enterprise control panel:
+
+- **User Management** — add, edit, delete, suspend users with search, filter, sort & pagination
+- **Role & Permission Matrix** — 6 roles × 9 modules × 6 permissions (View, Create, Edit, Delete, Export, Manage)
+- **Application Settings** — company info, timezone, language, currency, theme
+- **Security Settings** — password change, 2FA, session timeout, active sessions, API keys
+- **Notification Preferences** — email & push toggles per alert type, digest frequency
+- **Activity Timeline** — live audit log of logins, role changes, security events
+
+### Roles
+
+| Role | Permissions |
+|------|-------------|
+| Administrator | Full access — 54 permissions |
+| Fleet Manager | Vehicles, Drivers, Trips, Maintenance — 32 permissions |
+| Dispatcher | Trips, basic read — 18 permissions |
+| Safety Officer | Drivers, Maintenance read/edit — 14 permissions |
+| Financial Analyst | Expenses, Reports, Fuel — 16 permissions |
+| Driver | Own trips & profile — 8 permissions |
+
+---
+
 ## Team
 
 | Member | Role | Branch |
@@ -153,18 +220,6 @@ See [`docs/DATABASE.md`](docs/DATABASE.md) for local and managed MySQL setup ins
 | Lacki | Backend Developer | `backend/lacki` |
 | Tanya | Frontend Developer | `frontend/tanya` |
 | Niharika | Frontend Developer | `frontend/niharika` |
-
----
-
-## Hour 2 Plan
-
-- JWT authentication and role-based access control
-- Vehicle CRUD with status management
-- Driver CRUD with license tracking
-- Trip creation and dispatch workflow
-- Maintenance record management
-- Fuel log and expense recording
-- Dashboard KPI aggregations
 
 ---
 

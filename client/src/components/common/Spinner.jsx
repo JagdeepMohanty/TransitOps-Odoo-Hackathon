@@ -1,12 +1,32 @@
-import { cn } from '@/utils'
+const SIZES = {
+  xs: 'w-3 h-3 border',
+  sm: 'w-4 h-4 border-2',
+  md: 'w-6 h-6 border-2',
+  lg: 'w-8 h-8 border-[3px]',
+  xl: 'w-12 h-12 border-4',
+};
 
-export default function Spinner({ size = 'md', className }) {
-  const DIM = { sm: 'w-5 h-5', md: 'w-8 h-8', lg: 'w-12 h-12' }
-  const BRD = { sm: 'border-2', md: 'border-[3px]', lg: 'border-4' }
+const COLORS = {
+  primary: 'border-primary/20 border-t-primary',
+  white:   'border-white/20 border-t-white',
+  muted:   'border-border border-t-content-muted',
+};
+
+export default function Spinner({
+  size      = 'md',
+  color     = 'primary',
+  className = '',
+}) {
   return (
-    <div className={cn('relative flex items-center justify-center', DIM[size], className)}>
-      <div className={cn('absolute inset-0 rounded-full border-slate-200', BRD[size])} />
-      <div className={cn('absolute inset-0 rounded-full border-transparent border-t-brand-600 animate-spin', BRD[size])} />
-    </div>
-  )
+    <span
+      role="status"
+      aria-label="Loading"
+      className={[
+        'inline-block rounded-full animate-spin',
+        SIZES[size]  ?? SIZES.md,
+        COLORS[color] ?? COLORS.primary,
+        className,
+      ].join(' ')}
+    />
+  );
 }

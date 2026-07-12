@@ -1,10 +1,32 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
-export default function usePagination(initialPage = 1, initialLimit = 10) {
-  const [page,  setPage]  = useState(initialPage)
-  const [limit, setLimit] = useState(initialLimit)
+export function usePagination(data = [], defaultPageSize = 10) {
+  const [page,     setPage]     = useState(1)
+  const [pageSize, setPageSize] = useState(defaultPageSize)
 
-  const reset = () => setPage(1)
+  const totalItems = data.length
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
 
-  return { page, limit, setPage, setLimit, reset }
+  const paged = useMemo(() => {
+    const start = (page - 1) * pageSize
+    return data.slice(start, start + pageSize)
+  }, [data, page, pageSize])
+
+  function handlePageChange(p) {
+    setPage(Math.min(Math.max(1, p), totalPages))
+  }
+
+  function handlePageSizeChange(s) {
+    setPageSize(s)
+    setPage(1)
+  }
+
+  return {
+    page, pageSize, totalItems, totalPages,
+    paged,
+    setPage: handlePageChange,
+    setPageSize: handlePageSizeChange,
+  }
 }
+
+export default usePagination

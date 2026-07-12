@@ -15,9 +15,9 @@ const DEMO_USERS = [
 
 export default function LoginPage() {
   const { login, isAuthenticated, isLoading } = useAuth()
-  const navigate  = useNavigate()
-  const location  = useLocation()
-  const from      = location.state?.from?.pathname || '/'
+  const navigate = useNavigate()
+  const location = useLocation()
+  const from     = location.state?.from?.pathname || '/'
 
   const {
     register,
@@ -36,8 +36,7 @@ export default function LoginPage() {
       await login(email, password)
       navigate(from, { replace: true })
     } catch (err) {
-      const msg = err.response?.data?.message || 'Login failed. Please try again.'
-      setError('root', { message: msg })
+      setError('root', { message: err.response?.data?.message || 'Login failed. Please try again.' })
     }
   }
 
@@ -50,7 +49,6 @@ export default function LoginPage() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md space-y-6">
 
-        {/* Logo */}
         <div className="text-center">
           <div className="inline-flex w-14 h-14 bg-brand-600 rounded-2xl items-center justify-center mb-4 shadow-lg shadow-brand-900/20">
             <Bus size={28} className="text-white" />
@@ -59,7 +57,6 @@ export default function LoginPage() {
           <p className="text-sm text-slate-500 mt-1">Sign in to your account</p>
         </div>
 
-        {/* Form card */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
 
@@ -85,9 +82,7 @@ export default function LoginPage() {
                   }`}
                 placeholder="you@transitops.com"
               />
-              {errors.email && (
-                <p className="mt-1.5 text-xs text-red-600">{errors.email.message}</p>
-              )}
+              {errors.email && <p className="mt-1.5 text-xs text-red-600">{errors.email.message}</p>}
             </div>
 
             <div>
@@ -106,9 +101,7 @@ export default function LoginPage() {
                   }`}
                 placeholder="••••••••"
               />
-              {errors.password && (
-                <p className="mt-1.5 text-xs text-red-600">{errors.password.message}</p>
-              )}
+              {errors.password && <p className="mt-1.5 text-xs text-red-600">{errors.password.message}</p>}
             </div>
 
             <button
@@ -126,7 +119,6 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* Demo credentials */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5">
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
             Demo credentials
