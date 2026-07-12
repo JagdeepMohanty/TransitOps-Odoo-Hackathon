@@ -223,18 +223,6 @@ The `/settings` page is a full enterprise control panel:
 
 ---
 
-## Hour 2 Plan
-
-- JWT authentication and role-based access control
-- Vehicle CRUD with status management
-- Driver CRUD with license tracking
-- Trip creation and dispatch workflow
-- Maintenance record management
-- Fuel log and expense recording
-- Dashboard KPI aggregations
-
----
-
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for branch model, commit conventions, and team rules.
