@@ -25,3 +25,16 @@ export const sumMaintenanceByVehicle = (vehicleId) =>
     where: { vehicleId, type: 'MAINTENANCE' },
     _sum: { amount: true },
   });
+
+/**
+ * Sum of expenses that are NOT fuel and NOT maintenance.
+ * Used in operational cost to avoid double-counting:
+ *   - Fuel cost comes from FuelLog table
+ *   - Maintenance cost comes from Maintenance table
+ *   - This covers TOLL, PARKING, REPAIR, OTHER
+ */
+export const sumOtherByVehicle = (vehicleId) =>
+  prisma.expense.aggregate({
+    where: { vehicleId, type: { notIn: ['FUEL', 'MAINTENANCE'] } },
+    _sum: { amount: true },
+  });

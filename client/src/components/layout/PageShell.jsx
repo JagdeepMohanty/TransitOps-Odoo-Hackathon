@@ -28,9 +28,9 @@ function Breadcrumb({ overrides = {} }) {
         <span>Home</span>
       </Link>
       {segments.map((seg, i) => {
-        const label   = overrides[seg] ?? ROUTE_LABELS[seg] ?? (seg.charAt(0).toUpperCase() + seg.slice(1));
-        const path    = '/' + segments.slice(0, i + 1).join('/');
-        const isLast  = i === segments.length - 1;
+        const label  = overrides[seg] ?? ROUTE_LABELS[seg] ?? (seg.charAt(0).toUpperCase() + seg.slice(1));
+        const path   = '/' + segments.slice(0, i + 1).join('/');
+        const isLast = i === segments.length - 1;
         return (
           <span key={path} className="flex items-center gap-1">
             <ChevronRight className="w-3 h-3 text-content-disabled" />
@@ -46,38 +46,19 @@ function Breadcrumb({ overrides = {} }) {
   );
 }
 
-/**
- * PageShell — wraps every protected page with:
- *   - Breadcrumb
- *   - Page title + subtitle + actions row
- *   - Responsive max-width container
- *   - Optional card wrapper around children
- *
- * Props:
- *   title          string   — page heading
- *   subtitle       string   — optional sub-heading
- *   actions        ReactNode — buttons rendered top-right
- *   card           boolean  — wrap children in a card (default false)
- *   breadcrumbOverrides  object — { segmentKey: 'Custom Label' }
- *   className      string
- *   children       ReactNode
- */
 export default function PageShell({
   title,
   subtitle,
   actions,
-  card          = false,
+  card               = false,
   breadcrumbOverrides = {},
-  className     = '',
+  className          = '',
   children,
 }) {
   return (
     <div className={`space-y-5 ${className}`}>
-
-      {/* ── Breadcrumb ── */}
       <Breadcrumb overrides={breadcrumbOverrides} />
 
-      {/* ── Page Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="min-w-0">
           {title && (
@@ -96,7 +77,6 @@ export default function PageShell({
         )}
       </div>
 
-      {/* ── Content ── */}
       {card ? (
         <div className="bg-bg-card border border-border-card rounded-xl shadow-card p-6">
           {children}

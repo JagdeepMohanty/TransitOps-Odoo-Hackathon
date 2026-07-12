@@ -1,6 +1,22 @@
 import { cn } from '@/utils'
 
 const PRESETS = {
+  // ── Backend trip statuses (UPPER_SNAKE_CASE) ──────────────────────────────
+  DRAFT:       { label: 'Draft',       dot: 'bg-slate-400',   pill: 'bg-slate-100  text-slate-600  ring-slate-200/80'   },
+  DISPATCHED:  { label: 'Dispatched',  dot: 'bg-amber-400',   pill: 'bg-amber-50   text-amber-700  ring-amber-200/80'   },
+  COMPLETED:   { label: 'Completed',   dot: 'bg-emerald-400', pill: 'bg-emerald-50 text-emerald-700 ring-emerald-200/80' },
+  CANCELLED:   { label: 'Cancelled',   dot: 'bg-red-400',     pill: 'bg-red-50     text-red-700    ring-red-200/80'     },
+  // ── Backend vehicle statuses ───────────────────────────────────────────────
+  AVAILABLE:   { label: 'Available',   dot: 'bg-emerald-400', pill: 'bg-emerald-50 text-emerald-700 ring-emerald-200/80' },
+  ON_TRIP:     { label: 'On Trip',     dot: 'bg-amber-400',   pill: 'bg-amber-50   text-amber-700  ring-amber-200/80'   },
+  IN_SHOP:     { label: 'In Shop',     dot: 'bg-blue-400',    pill: 'bg-blue-50    text-blue-700   ring-blue-200/80'    },
+  RETIRED:     { label: 'Retired',     dot: 'bg-slate-300',   pill: 'bg-slate-100  text-slate-500  ring-slate-200/80'   },
+  // ── Backend maintenance statuses ──────────────────────────────────────────
+  ACTIVE:      { label: 'Active',      dot: 'bg-amber-400',   pill: 'bg-amber-50   text-amber-700  ring-amber-200/80'   },
+  // ── Backend driver statuses ───────────────────────────────────────────────
+  OFF_DUTY:    { label: 'Off Duty',    dot: 'bg-slate-300',   pill: 'bg-slate-100  text-slate-500  ring-slate-200/80'   },
+  SUSPENDED:   { label: 'Suspended',   dot: 'bg-red-400',     pill: 'bg-red-50     text-red-700    ring-red-200/80'     },
+  // ── Legacy lowercase presets (kept for backward compat) ───────────────────
   scheduled:   { label: 'Scheduled',   dot: 'bg-blue-400',    pill: 'bg-blue-50    text-blue-700   ring-blue-200/80'   },
   in_progress: { label: 'In Progress', dot: 'bg-amber-400',   pill: 'bg-amber-50   text-amber-700  ring-amber-200/80'  },
   completed:   { label: 'Completed',   dot: 'bg-emerald-400', pill: 'bg-emerald-50 text-emerald-700 ring-emerald-200/80'},
@@ -32,12 +48,12 @@ export default function StatusBadge({
   size    = 'md',
   className,
 }) {
-  const key        = status?.toLowerCase().replace(/\s+/g, '_') ?? ''
-  const preset     = PRESETS[key] ?? {}
+  const key        = status ?? ''
+  const preset     = PRESETS[key] ?? PRESETS[key?.toLowerCase().replace(/\s+/g, '_')] ?? {}
   const label      = labelOverride ?? preset.label ?? status ?? '—'
   const pillColor  = colorOverride ?? preset.pill  ?? 'bg-slate-100 text-slate-500 ring-slate-200/80'
   const dotColor   = preset.dot ?? 'bg-slate-300'
-  const shouldPulse = pulse ?? LIVE_STATUSES.has(key)
+  const shouldPulse = pulse ?? (key === 'DISPATCHED' || key === 'in_progress' || key === 'active')
 
   return (
     <span className={cn(

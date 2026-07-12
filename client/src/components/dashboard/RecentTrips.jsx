@@ -1,28 +1,34 @@
-import Table      from '@/components/common/Table'
+import { useState, useEffect } from 'react'
+import Table       from '@/components/common/Table'
 import StatusBadge from '@/components/common/StatusBadge'
 import Card        from '@/components/common/Card'
 import { formatDate } from '@/utils'
-
-const MOCK_TRIPS = [
-  { id: 'T-001', route: 'Lagos → Abuja',          driver: 'James Okafor',  date: '2024-09-10', status: 'completed'   },
-  { id: 'T-002', route: 'Abuja → Kano',           driver: 'Amina Bello',   date: '2024-09-11', status: 'in_progress' },
-  { id: 'T-003', route: 'Kano → Kaduna',          driver: 'Emeka Nwosu',   date: '2024-09-12', status: 'scheduled'   },
-  { id: 'T-004', route: 'Lagos → Ibadan',         driver: 'Fatima Yusuf',  date: '2024-09-09', status: 'cancelled'   },
-  { id: 'T-005', route: 'Port Harcourt → Enugu',  driver: 'Chidi Eze',     date: '2024-09-10', status: 'completed'   },
-]
+import { tripsApi } from '@/api/trips.api'
 
 const COLUMNS = [
   { key: 'id',     label: 'Trip ID', sortable: true,
-    render: (v) => <span className="font-medium text-brand-600">{v}</span> },
-  { key: 'route',  label: 'Route'  },
-  { key: 'driver', label: 'Driver' },
-  { key: 'date',   label: 'Date',
+    render: (v) => <span className="font-medium text-brand-600">#{v}</span> },
+  { key: 'origin',       label: 'Origin'  },
+  { key: 'destination',  label: 'Destination' },
+  { key: 'driver', label: 'Driver',
+    render: (_, row) => <span>{row.driver ? `${row.driver.firstName} ${row.driver.lastName}` : '—'}</span> },
+  { key: 'scheduledAt', label: 'Date',
     render: (v) => <span className="text-slate-500">{formatDate(v)}</span> },
   { key: 'status', label: 'Status',
     render: (v) => <StatusBadge status={v} /> },
 ]
 
 export default function RecentTrips() {
+  const [trips,   setTrips]   = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    tripsApi.list({ limit: 5, page: 1 })
+      .then(res => setTrips(res.data.data?.data ?? []))
+      .catch(() => setTrips([]))
+      .finally(() => setLoading(false))
+  }, [])
+
   return (
     <Card
       padding="none"
@@ -34,7 +40,8 @@ export default function RecentTrips() {
     >
       <Table
         columns={COLUMNS}
-        data={MOCK_TRIPS}
+        data={trips}
+        loading={loading}
         emptyTitle="No recent trips"
         emptyDesc="Trips will appear here once created."
       />

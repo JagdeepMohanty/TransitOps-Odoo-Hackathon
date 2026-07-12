@@ -1,3 +1,4 @@
+import prisma from '../config/prisma.js';
 import * as maintenanceRepo from '../repositories/maintenance.repository.js';
 import * as vehicleRepo from '../repositories/vehicle.repository.js';
 import { ApiError } from '../utils/ApiError.js';
@@ -10,7 +11,7 @@ export const getAllMaintenance = async (query) => {
   const { page, limit, skip } = getPagination(query);
   const filters = {};
   if (query.vehicleId) filters.vehicleId = parseInt(query.vehicleId);
-  if (query.status) filters.status = query.status;
+  if (query.status)    filters.status    = query.status;
 
   const [logs, total] = await Promise.all([
     maintenanceRepo.findAll(filters, skip, limit),
@@ -26,12 +27,36 @@ export const getMaintenanceById = async (id) => {
 };
 
 export const createMaintenance = async (data) => {
+  // 1. Vehicle must exist
   const vehicle = await vehicleRepo.findById(data.vehicleId);
   if (!vehicle) throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.VEHICLE_NOT_FOUND);
 
-  await vehicleRepo.updateStatus(data.vehicleId, VEHICLE_STATUS.IN_SHOP);
+  // 2. Cannot create maintenance for a vehicle on a trip
+  if (vehicle.status === VEHICLE_STATUS.ON_TRIP)
+    throw new ApiError(HTTP_STATUS.CONFLICT, MESSAGES.VEHICLE_ON_TRIP_MAINTENANCE);
 
-  return maintenanceRepo.create({ ...data, status: MAINTENANCE_STATUS.ACTIVE });
+  // 3. Cannot create maintenance for a retired vehicle
+  if (vehicle.status === VEHICLE_STATUS.RETIRED)
+    throw new ApiError(HTTP_STATUS.CONFLICT, MESSAGES.VEHICLE_RETIRED_MAINTENANCE);
+
+  // 4. Cannot create duplicate active maintenance for the same vehicle
+  const existing = await maintenanceRepo.findActiveByVehicle(data.vehicleId);
+  if (existing)
+    throw new ApiError(HTTP_STATUS.CONFLICT, MESSAGES.VEHICLE_ALREADY_IN_MAINTENANCE);
+
+  // 5. Atomically create maintenance record and set vehicle IN_SHOP
+  const [log] = await prisma.$transaction([
+    prisma.maintenance.create({
+      data: { ...data, status: MAINTENANCE_STATUS.ACTIVE },
+      include: { vehicle: true },
+    }),
+    prisma.vehicle.update({
+      where: { id: data.vehicleId },
+      data:  { status: VEHICLE_STATUS.IN_SHOP },
+    }),
+  ]);
+
+  return log;
 };
 
 export const updateMaintenance = async (id, data) => {
@@ -43,16 +68,41 @@ export const updateMaintenance = async (id, data) => {
 };
 
 export const closeMaintenance = async (id, data) => {
+  // 1. Record must exist
   const log = await maintenanceRepo.findById(id);
   if (!log) throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.MAINTENANCE_NOT_FOUND);
+
+  // 2. Only ACTIVE records may be closed
   if (log.status !== MAINTENANCE_STATUS.ACTIVE)
     throw new ApiError(HTTP_STATUS.BAD_REQUEST, MESSAGES.MAINTENANCE_ALREADY_CLOSED);
 
   const vehicle = await vehicleRepo.findById(log.vehicleId);
 
-  if (vehicle.status !== VEHICLE_STATUS.RETIRED) {
-    await vehicleRepo.updateStatus(log.vehicleId, VEHICLE_STATUS.AVAILABLE);
+  const updateData = {
+    status:  MAINTENANCE_STATUS.COMPLETED,
+    endDate: data.endDate ?? new Date(),
+    ...(data.cost !== undefined && { cost: data.cost }),
+    ...(data.notes !== undefined && { notes: data.notes }),
+  };
+
+  // 3. Atomically close maintenance and restore vehicle (unless RETIRED)
+  const ops = [
+    prisma.maintenance.update({
+      where: { id },
+      data:  updateData,
+      include: { vehicle: true },
+    }),
+  ];
+
+  if (vehicle && vehicle.status !== VEHICLE_STATUS.RETIRED) {
+    ops.push(
+      prisma.vehicle.update({
+        where: { id: log.vehicleId },
+        data:  { status: VEHICLE_STATUS.AVAILABLE },
+      })
+    );
   }
 
-  return maintenanceRepo.update(id, { ...data, status: MAINTENANCE_STATUS.COMPLETED });
+  const [closedLog] = await prisma.$transaction(ops);
+  return closedLog;
 };

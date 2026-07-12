@@ -10,7 +10,7 @@ export const createMaintenanceSchema = z.object({
 });
 
 export const closeMaintenanceSchema = z.object({
-  endDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: 'Invalid date' }),
+  endDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: 'Invalid date' }).optional(),
   cost: z.number().min(0).optional(),
   notes: z.string().optional(),
 });

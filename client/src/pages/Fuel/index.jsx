@@ -1,138 +1,137 @@
-import { useState, useMemo } from 'react'
-import { Plus, Download, Eye, Fuel, Truck, User, MapPin, TrendingUp, TrendingDown } from 'lucide-react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { Plus, Fuel, Truck, Calendar, RefreshCw, TrendingUp, TrendingDown } from 'lucide-react'
 
-import PageHeader     from '@/components/layout/PageHeader'
-import Breadcrumb     from '@/components/common/Breadcrumb'
-import Button         from '@/components/common/Button'
-import SearchBar      from '@/components/common/SearchBar'
-import Table          from '@/components/common/Table'
-import Modal          from '@/components/common/Modal'
-import Loader         from '@/components/common/Loader'
-import Card           from '@/components/common/Card'
-import FilterTabBar   from '@/components/common/FilterTabBar'
-import StatsGrid      from '@/components/common/StatsGrid'
-import BulkActionBar  from '@/components/common/BulkActionBar'
-import PaginationBar  from '@/components/common/PaginationBar'
-import DetailInfoGrid from '@/components/common/DetailInfoGrid'
+import PageHeader    from '@/components/layout/PageHeader'
+import Breadcrumb    from '@/components/common/Breadcrumb'
+import Button        from '@/components/common/Button'
+import SearchBar     from '@/components/common/SearchBar'
+import Table         from '@/components/common/Table'
+import Modal         from '@/components/common/Modal'
+import Loader        from '@/components/common/Loader'
+import Card          from '@/components/common/Card'
+import StatsGrid     from '@/components/common/StatsGrid'
+import PaginationBar from '@/components/common/PaginationBar'
 import { formatDate, formatCurrency } from '@/utils'
+import { fuelLogsApi } from '@/api/fuelLogs.api'
+import { vehiclesApi } from '@/api/vehicles.api'
 
-const ALL_LOGS = [
-  { id: 'F-001', vehicle: 'LG-001-AA', make: 'Toyota Coaster',    driver: 'James Okafor',  liters: 80,  costPerLiter: 1.20, cost: 96,   odometer: 48200, prevOdometer: 47450, station: 'Total Energies, Lagos',     date: '2024-09-10', fuelType: 'Diesel' },
-  { id: 'F-002', vehicle: 'AB-002-BB', make: 'Mercedes Sprinter',  driver: 'Amina Bello',   liters: 65,  costPerLiter: 1.20, cost: 78,   odometer: 62100, prevOdometer: 61450, station: 'NNPC Mega Station, Abuja',  date: '2024-09-11', fuelType: 'Diesel' },
-  { id: 'F-003', vehicle: 'KN-003-CC', make: 'Ford Transit',       driver: 'Emeka Nwosu',   liters: 50,  costPerLiter: 1.20, cost: 60,   odometer: 21500, prevOdometer: 20900, station: 'Oando, Kano',               date: '2024-09-12', fuelType: 'Petrol' },
-  { id: 'F-004', vehicle: 'PH-005-EE', make: 'Toyota Hiace',       driver: 'Chidi Eze',     liters: 90,  costPerLiter: 1.20, cost: 108,  odometer: 33800, prevOdometer: 32900, station: 'Conoil, Port Harcourt',     date: '2024-09-10', fuelType: 'Diesel' },
-  { id: 'F-005', vehicle: 'AB-006-FF', make: 'Mitsubishi Rosa',    driver: 'Bola Adeyemi',  liters: 70,  costPerLiter: 1.20, cost: 84,   odometer: 55200, prevOdometer: 54500, station: 'MRS Oil, Abuja',             date: '2024-09-13', fuelType: 'Diesel' },
-  { id: 'F-006', vehicle: 'LG-007-GG', make: 'Toyota Coaster',    driver: 'Ngozi Obi',     liters: 85,  costPerLiter: 1.20, cost: 102,  odometer: 29100, prevOdometer: 28300, station: 'Total Energies, Lagos',     date: '2024-09-08', fuelType: 'Diesel' },
-  { id: 'F-007', vehicle: 'KN-008-HH', make: 'Ford Transit',       driver: 'Usman Garba',   liters: 60,  costPerLiter: 1.20, cost: 72,   odometer: 41600, prevOdometer: 40900, station: 'Oando, Kano',               date: '2024-09-14', fuelType: 'Petrol' },
-  { id: 'F-008', vehicle: 'EN-009-II', make: 'Toyota Hiace',       driver: 'Ada Nwofor',    liters: 45,  costPerLiter: 1.20, cost: 54,   odometer: 18900, prevOdometer: 18400, station: 'Forte Oil, Enugu',          date: '2024-09-07', fuelType: 'Petrol' },
-  { id: 'F-009', vehicle: 'IB-010-JJ', make: 'Mercedes Sprinter',  driver: 'Seun Afolabi',  liters: 75,  costPerLiter: 1.20, cost: 90,   odometer: 37400, prevOdometer: 36700, station: 'Nipco, Ibadan',             date: '2024-09-11', fuelType: 'Diesel' },
-  { id: 'F-010', vehicle: 'LG-001-AA', make: 'Toyota Coaster',    driver: 'James Okafor',  liters: 82,  costPerLiter: 1.20, cost: 98.4, odometer: 49050, prevOdometer: 48200, station: 'Total Energies, Lagos',     date: '2024-09-15', fuelType: 'Diesel' },
-]
-
-/* Fuel type filter tabs */
-const FUEL_TABS = [
-  { key: 'All',    label: 'All'    },
-  { key: 'Diesel', label: 'Diesel' },
-  { key: 'Petrol', label: 'Petrol' },
-]
-
-const STATS = [
-  { label: 'Total Logs',     value: ALL_LOGS.length,                                                                       color: 'text-slate-900' },
-  { label: 'Total Liters',   value: `${ALL_LOGS.reduce((s, l) => s + l.liters, 0).toLocaleString()} L`,                   color: 'text-blue-600'  },
-  { label: 'Total Cost',     value: formatCurrency(ALL_LOGS.reduce((s, l) => s + l.cost, 0)),                             color: 'text-brand-600' },
-  { label: 'Avg Cost/Liter', value: `$${(ALL_LOGS.reduce((s, l) => s + l.costPerLiter, 0) / ALL_LOGS.length).toFixed(2)}`, color: 'text-amber-600' },
-  { label: 'Diesel Fills',   value: ALL_LOGS.filter(l => l.fuelType === 'Diesel').length,                                 color: 'text-slate-700' },
-  { label: 'Petrol Fills',   value: ALL_LOGS.filter(l => l.fuelType === 'Petrol').length,                                 color: 'text-slate-700' },
-]
-
-const PAGE_SIZE = 8
-
-const COLUMNS = [
-  { key: 'id',       label: 'Log ID',   sortable: true, width: '90px',
-    render: (v) => <span className="font-semibold text-brand-600 font-mono text-xs">{v}</span> },
-  { key: 'vehicle',  label: 'Vehicle',  sortable: true,
-    render: (v, row) => (
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-          <Truck size={13} className="text-blue-600" />
-        </div>
-        <div>
-          <span className="font-mono text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">{v}</span>
-          <p className="text-[11px] text-slate-400 mt-0.5">{row.make}</p>
-        </div>
-      </div>
-    )},
-  { key: 'driver',   label: 'Driver',   sortable: true,
-    render: (v) => (
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-600 shrink-0">
-          {v.split(' ').map(n => n[0]).join('')}
-        </div>
-        <span className="text-sm text-slate-700">{v}</span>
-      </div>
-    )},
-  { key: 'fuelType', label: 'Type',     width: '80px',
-    render: (v) => (
-      <span className={`badge ${v === 'Diesel' ? 'bg-slate-100 text-slate-700' : 'bg-green-50 text-green-700'}`}>{v}</span>
-    )},
-  { key: 'liters',   label: 'Liters',   sortable: true, align: 'right',
-    render: (v) => <span className="font-medium text-slate-800">{v} L</span> },
-  { key: 'cost',     label: 'Cost',     sortable: true, align: 'right',
-    render: (v) => <span className="font-semibold text-slate-800">{formatCurrency(v)}</span> },
-  { key: 'odometer', label: 'Odometer', sortable: true, align: 'right',
-    render: (v, row) => {
-      const km  = v - row.prevOdometer
-      const eff = (km / row.liters).toFixed(1)
-      const good = parseFloat(eff) >= 8
-      return (
-        <div className="text-right">
-          <p className="text-sm font-medium text-slate-800">{v.toLocaleString()} km</p>
-          <p className={`text-[11px] flex items-center justify-end gap-0.5 ${good ? 'text-green-600' : 'text-amber-600'}`}>
-            {good ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
-            {eff} km/L
-          </p>
-        </div>
-      )
-    }},
-  { key: 'station',  label: 'Station',
-    render: (v) => (
-      <div className="flex items-center gap-1.5">
-        <MapPin size={12} className="text-slate-400 shrink-0" />
-        <span className="text-xs text-slate-500 truncate max-w-[160px]">{v}</span>
-      </div>
-    )},
-  { key: 'date',     label: 'Date',     sortable: true,
-    render: (v) => <span className="text-slate-500 text-sm">{formatDate(v)}</span> },
-]
+const PAGE_SIZE = 10
+const errMsg = (e) => e?.response?.data?.message ?? e?.message ?? 'Something went wrong.'
+const today  = () => new Date().toISOString().slice(0, 10)
 
 export default function FuelPage() {
-  const [search,     setSearch]     = useState('')
-  const [fuelFilter, setFuelFilter] = useState('All')
+  const [logs,       setLogs]       = useState([])
+  const [total,      setTotal]      = useState(0)
+  const [loading,    setLoading]    = useState(true)
+  const [error,      setError]      = useState(null)
   const [page,       setPage]       = useState(1)
-  const [selected,   setSelected]   = useState([])
-  const [detailRow,  setDetailRow]  = useState(null)
-  const [loading,    setLoading]    = useState(false)
+  const [search,     setSearch]     = useState('')
 
-  const handleFuelFilter = (type) => {
-    setLoading(true); setFuelFilter(type); setPage(1)
-    setTimeout(() => setLoading(false), 500)
+  // Create modal
+  const [showCreate,    setShowCreate]    = useState(false)
+  const [vehicles,      setVehicles]      = useState([])
+  const [loadingVeh,    setLoadingVeh]    = useState(false)
+  const [createLoading, setCreateLoading] = useState(false)
+  const [createError,   setCreateError]   = useState(null)
+  const [form, setForm] = useState({
+    vehicleId: '', liters: '', cost: '', logDate: today(), odometer: '', tripId: '',
+  })
+
+  const fetchLogs = useCallback(async () => {
+    setLoading(true); setError(null)
+    try {
+      const params = { page, limit: PAGE_SIZE }
+      if (search.trim()) params.search = search.trim()
+      const res = await fuelLogsApi.list(params)
+      const d   = res.data.data
+      setLogs(d.data ?? [])
+      setTotal(d.pagination?.total ?? 0)
+    } catch (e) { setError(errMsg(e)) }
+    finally     { setLoading(false) }
+  }, [page, search])
+
+  useEffect(() => { fetchLogs() }, [fetchLogs])
+
+  const stats = useMemo(() => {
+    const totalLiters = logs.reduce((s, l) => s + parseFloat(l.liters ?? 0), 0)
+    const totalCost   = logs.reduce((s, l) => s + parseFloat(l.cost   ?? 0), 0)
+    return [
+      { label: 'Total Logs',   value: total,                                    color: 'text-slate-900' },
+      { label: 'Total Liters', value: `${totalLiters.toLocaleString('en-IN')} L`, color: 'text-blue-600'  },
+      { label: 'Total Cost',   value: formatCurrency(totalCost),                color: 'text-brand-600' },
+      { label: 'Avg Cost/Log', value: logs.length ? formatCurrency(totalCost / logs.length) : '—', color: 'text-amber-600' },
+    ]
+  }, [logs, total])
+
+  const openCreate = async () => {
+    setCreateError(null)
+    setForm({ vehicleId: '', liters: '', cost: '', logDate: today(), odometer: '', tripId: '' })
+    setShowCreate(true)
+    setLoadingVeh(true)
+    try {
+      const res = await vehiclesApi.getAll({ limit: 100 })
+      setVehicles(res.data.data?.data ?? [])
+    } catch { setCreateError('Failed to load vehicles.') }
+    finally   { setLoadingVeh(false) }
   }
 
-  const filtered = useMemo(() => ALL_LOGS.filter(l => {
-    const matchType   = fuelFilter === 'All' || l.fuelType === fuelFilter
-    const q           = search.toLowerCase()
-    const matchSearch = !q || l.id.toLowerCase().includes(q)
-      || l.vehicle.toLowerCase().includes(q)
-      || l.driver.toLowerCase().includes(q)
-      || l.station.toLowerCase().includes(q)
-    return matchType && matchSearch
-  }), [search, fuelFilter])
+  const handleCreate = async () => {
+    setCreateError(null)
+    if (!form.vehicleId)                                  { setCreateError('Select a vehicle.'); return }
+    if (!form.liters || parseFloat(form.liters) <= 0)     { setCreateError('Liters must be > 0.'); return }
+    if (form.cost === '' || parseFloat(form.cost) < 0)    { setCreateError('Cost must be ≥ 0.'); return }
+    if (!form.logDate)                                    { setCreateError('Log date is required.'); return }
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-  const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+    setCreateLoading(true)
+    try {
+      await fuelLogsApi.create({
+        vehicleId: parseInt(form.vehicleId),
+        liters:    parseFloat(form.liters),
+        cost:      parseFloat(form.cost),
+        logDate:   new Date(form.logDate).toISOString(),
+        ...(form.odometer && { odometer: parseFloat(form.odometer) }),
+        ...(form.tripId   && { tripId:   parseInt(form.tripId)     }),
+      })
+      setShowCreate(false)
+      fetchLogs()
+    } catch (e) { setCreateError(errMsg(e)) }
+    finally     { setCreateLoading(false) }
+  }
 
-  const getTabCount = (key) =>
-    key === 'All' ? ALL_LOGS.length : ALL_LOGS.filter(l => l.fuelType === key).length
+  const COLUMNS = [
+    { key: 'id', label: 'ID', width: '70px',
+      render: (v) => <span className="font-mono text-xs text-brand-600 font-semibold">#{v}</span> },
+    { key: 'vehicle', label: 'Vehicle',
+      render: (_, row) => (
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+            <Truck size={13} className="text-blue-600" />
+          </div>
+          <div>
+            <span className="font-mono text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">
+              {row.vehicle?.registrationNumber ?? '—'}
+            </span>
+            <p className="text-[11px] text-slate-400 mt-0.5">{row.vehicle?.name ?? ''}</p>
+          </div>
+        </div>
+      )},
+    { key: 'liters', label: 'Liters', align: 'right',
+      render: (v) => <span className="font-medium text-slate-800">{parseFloat(v ?? 0).toLocaleString('en-IN')} L</span> },
+    { key: 'cost', label: 'Cost (₹)', align: 'right',
+      render: (v) => <span className="font-semibold text-slate-800">{formatCurrency(parseFloat(v ?? 0))}</span> },
+    { key: 'odometer', label: 'Odometer', align: 'right',
+      render: (v) => v
+        ? <span className="text-sm text-slate-600">{parseFloat(v).toLocaleString('en-IN')} km</span>
+        : <span className="text-slate-400">—</span> },
+    { key: 'logDate', label: 'Date', sortable: true,
+      render: (v) => <span className="text-xs text-slate-500">{formatDate(v)}</span> },
+    { key: 'trip', label: 'Trip',
+      render: (_, row) => row.trip
+        ? <span className="font-mono text-xs text-brand-600">#{row.trip.id}</span>
+        : <span className="text-slate-400 text-xs">—</span> },
+  ]
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   return (
     <div className="page-container">
@@ -140,138 +139,126 @@ export default function FuelPage() {
 
       <PageHeader
         title="Fuel Logs"
-        subtitle="Monitor fuel consumption, costs, and efficiency across the fleet."
-        badge={<span className="badge bg-blue-100 text-blue-700 ring-1 ring-blue-200">{ALL_LOGS.length} entries</span>}
+        subtitle="Monitor fuel consumption and costs across the fleet."
+        badge={<span className="badge bg-blue-100 text-blue-700 ring-1 ring-blue-200">{total} entries</span>}
         actions={
           <>
-            <Button variant="secondary" size="sm" leftIcon={<Download size={14} />}>Export</Button>
-            <Button size="sm" leftIcon={<Plus size={14} />}>Log Fuel</Button>
+            <Button variant="secondary" size="sm" leftIcon={<RefreshCw size={14} />} onClick={fetchLogs} loading={loading}>
+              Refresh
+            </Button>
+            <Button size="sm" leftIcon={<Plus size={14} />} onClick={openCreate}>
+              Log Fuel
+            </Button>
           </>
         }
       />
 
-      <StatsGrid stats={STATS} />
+      <StatsGrid stats={stats} />
 
       <Card padding="none">
-        {/* Toolbar */}
-        <div className="px-5 py-4 border-b border-slate-100 space-y-3">
-          <FilterTabBar
-            tabs={FUEL_TABS}
-            active={fuelFilter}
-            onChange={handleFuelFilter}
-            getCount={getTabCount}
+        <div className="px-5 py-4 border-b border-slate-100">
+          <SearchBar
+            placeholder="Search vehicle…"
+            value={search}
+            onChange={(v) => { setSearch(v); setPage(1) }}
+            className="w-full sm:w-72"
           />
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <SearchBar
-              placeholder="Search by ID, vehicle, driver, station…"
-              value={search}
-              onChange={(v) => { setSearch(v); setPage(1) }}
-              className="w-full sm:w-72"
-            />
-            <BulkActionBar
-              count={selected.length}
-              actions={<Button variant="danger" size="sm">Delete</Button>}
-            />
-          </div>
         </div>
 
         {loading ? (
           <Loader variant="skeleton" lines={8} className="p-5" />
+        ) : error ? (
+          <div className="p-10 text-center">
+            <p className="text-sm text-red-600 mb-3">{error}</p>
+            <Button size="sm" variant="secondary" onClick={fetchLogs}>Retry</Button>
+          </div>
         ) : (
           <Table
-            columns={[
-              ...COLUMNS,
-              { key: '_actions', label: '', width: '60px',
-                render: (_, row) => (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setDetailRow(row) }}
-                    className="p-1.5 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
-                  >
-                    <Eye size={15} />
-                  </button>
-                )},
-            ]}
-            data={paginated}
-            selectable selected={selected} onSelect={setSelected}
-            onRowClick={setDetailRow}
+            columns={COLUMNS}
+            data={logs}
             emptyTitle="No fuel logs found"
-            emptyDesc={search ? 'Try a different search term.' : 'Start logging fuel fills for your fleet.'}
-            emptyAction={!search && <Button size="sm" leftIcon={<Plus size={14} />}>Log Fuel</Button>}
+            emptyDesc={search ? 'Try clearing the search.' : 'Start logging fuel fills for your fleet.'}
+            emptyAction={!search && <Button size="sm" leftIcon={<Plus size={14} />} onClick={openCreate}>Log Fuel</Button>}
           />
         )}
 
-        {!loading && (
+        {!loading && !error && (
           <PaginationBar
-            page={page}
-            totalPages={totalPages}
-            totalItems={filtered.length}
-            pageSize={PAGE_SIZE}
-            itemLabel="logs"
-            onPageChange={setPage}
+            page={page} totalPages={totalPages} totalItems={total}
+            pageSize={PAGE_SIZE} itemLabel="logs" onPageChange={setPage}
           />
         )}
       </Card>
 
-      {/* Fuel Log Detail Modal */}
+      {/* Create Modal */}
       <Modal
-        isOpen={!!detailRow} onClose={() => setDetailRow(null)}
-        title="Fuel Log Details" subtitle={detailRow?.id} size="md"
+        isOpen={showCreate} onClose={() => setShowCreate(false)}
+        title="Log Fuel Fill" size="md"
         footer={
           <>
-            <Button variant="secondary" size="sm" onClick={() => setDetailRow(null)}>Close</Button>
-            <Button size="sm">Edit Log</Button>
+            <Button variant="secondary" size="sm" onClick={() => setShowCreate(false)} disabled={createLoading}>Cancel</Button>
+            <Button size="sm" loading={createLoading} onClick={handleCreate}>Save Log</Button>
           </>
         }
       >
-        {detailRow && (
-          <div className="space-y-4">
-            <DetailInfoGrid fields={[
-              { icon: Truck,  label: 'Vehicle',   value: `${detailRow.vehicle} — ${detailRow.make}` },
-              { icon: User,   label: 'Driver',    value: detailRow.driver                           },
-              { icon: Fuel,   label: 'Fuel Type', value: detailRow.fuelType                         },
-              { icon: MapPin, label: 'Station',   value: detailRow.station                          },
-            ]} />
+        <div className="space-y-4">
+          {createError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">{createError}</div>
+          )}
 
-            <div className="grid grid-cols-3 gap-3">
-              <div className="p-3 bg-blue-50 rounded-xl text-center">
-                <p className="text-xs text-slate-500 mb-1">Liters</p>
-                <p className="text-lg font-bold text-blue-700">{detailRow.liters} L</p>
-              </div>
-              <div className="p-3 bg-brand-50 rounded-xl text-center">
-                <p className="text-xs text-slate-500 mb-1">Total Cost</p>
-                <p className="text-lg font-bold text-brand-700">{formatCurrency(detailRow.cost)}</p>
-              </div>
-              <div className="p-3 bg-green-50 rounded-xl text-center">
-                <p className="text-xs text-slate-500 mb-1">Efficiency</p>
-                <p className="text-lg font-bold text-green-700">
-                  {((detailRow.odometer - detailRow.prevOdometer) / detailRow.liters).toFixed(1)} km/L
-                </p>
-              </div>
-            </div>
+          <MField label="Vehicle *">
+            {loadingVeh ? <p className="text-xs text-slate-500 py-2">Loading…</p> : (
+              <select value={form.vehicleId} onChange={e => setForm(f => ({ ...f, vehicleId: e.target.value }))} className={iCls()}>
+                <option value="">Select vehicle…</option>
+                {vehicles.map(v => (
+                  <option key={v.id} value={v.id}>{v.registrationNumber} — {v.name}</option>
+                ))}
+              </select>
+            )}
+          </MField>
 
-            <div className="p-4 bg-slate-50 rounded-xl">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Odometer Reading</p>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] text-slate-400">Previous</p>
-                  <p className="font-semibold text-slate-700">{detailRow.prevOdometer.toLocaleString()} km</p>
-                </div>
-                <div className="text-slate-300 font-bold">→</div>
-                <div className="text-right">
-                  <p className="text-[10px] text-slate-400">Current</p>
-                  <p className="font-semibold text-slate-700">{detailRow.odometer.toLocaleString()} km</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] text-slate-400">Distance</p>
-                  <p className="font-semibold text-brand-600">+{(detailRow.odometer - detailRow.prevOdometer).toLocaleString()} km</p>
-                </div>
-              </div>
-            </div>
-
-            <p className="text-xs text-slate-400 text-right">{formatDate(detailRow.date)}</p>
+          <div className="grid grid-cols-2 gap-3">
+            <MField label="Liters *">
+              <input type="number" min="0.1" step="0.1" value={form.liters}
+                onChange={e => setForm(f => ({ ...f, liters: e.target.value }))}
+                placeholder="e.g. 120" className={iCls()} />
+            </MField>
+            <MField label="Cost (₹) *">
+              <input type="number" min="0" step="0.01" value={form.cost}
+                onChange={e => setForm(f => ({ ...f, cost: e.target.value }))}
+                placeholder="e.g. 10800" className={iCls()} />
+            </MField>
+            <MField label="Log Date *">
+              <input type="date" value={form.logDate}
+                onChange={e => setForm(f => ({ ...f, logDate: e.target.value }))}
+                className={iCls()} />
+            </MField>
+            <MField label="Odometer (km)">
+              <input type="number" min="0" step="1" value={form.odometer}
+                onChange={e => setForm(f => ({ ...f, odometer: e.target.value }))}
+                placeholder="e.g. 48200" className={iCls()} />
+            </MField>
           </div>
-        )}
+
+          <MField label="Trip ID (optional)">
+            <input type="number" min="1" step="1" value={form.tripId}
+              onChange={e => setForm(f => ({ ...f, tripId: e.target.value }))}
+              placeholder="Link to a trip" className={iCls()} />
+          </MField>
+        </div>
       </Modal>
     </div>
   )
 }
+
+function MField({ label, children }) {
+  return (
+    <label className="block">
+      <span className="text-xs font-medium text-slate-600">{label}</span>
+      <div className="mt-1">{children}</div>
+    </label>
+  )
+}
+
+const iCls = () =>
+  'w-full h-9 px-3 text-sm border border-slate-200 rounded-xl outline-none bg-white text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition'
