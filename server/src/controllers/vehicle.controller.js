@@ -6,22 +6,17 @@ import { MESSAGES } from '../constants/messages.js';
 
 export const getVehicles = asyncHandler(async (req, res) => {
   const result = await vehicleService.getAllVehicles(req.query);
-  return new ApiResponse(HTTP_STATUS.OK, 'Vehicles fetched.', result).send(res);
+  return new ApiResponse(HTTP_STATUS.OK, 'Vehicles retrieved successfully.', result).send(res);
 });
 
 export const getVehicle = asyncHandler(async (req, res) => {
-<<<<<<< Updated upstream
-  const vehicle = await vehicleService.getVehicleById(parseInt(req.params.id));
-  return new ApiResponse(HTTP_STATUS.OK, 'Vehicle fetched.', vehicle).send(res);
-=======
   const vehicle = await vehicleService.getVehicleById(req.params.id);
-  new ApiResponse(HTTP_STATUS.OK, 'Vehicle retrieved successfully.', vehicle).send(res);
->>>>>>> Stashed changes
+  return new ApiResponse(HTTP_STATUS.OK, 'Vehicle retrieved successfully.', vehicle).send(res);
 });
 
 export const getAvailableVehicles = asyncHandler(async (req, res) => {
   const vehicles = await vehicleService.getAvailableVehicles();
-  return new ApiResponse(HTTP_STATUS.OK, 'Available vehicles fetched.', vehicles).send(res);
+  return new ApiResponse(HTTP_STATUS.OK, 'Available vehicles retrieved successfully.', vehicles).send(res);
 });
 
 export const createVehicle = asyncHandler(async (req, res) => {
@@ -30,21 +25,11 @@ export const createVehicle = asyncHandler(async (req, res) => {
 });
 
 export const updateVehicle = asyncHandler(async (req, res) => {
-<<<<<<< Updated upstream
-  const vehicle = await vehicleService.updateVehicle(parseInt(req.params.id), req.body);
+  const vehicle = await vehicleService.updateVehicle(req.params.id, req.body);
   return new ApiResponse(HTTP_STATUS.OK, MESSAGES.VEHICLE_UPDATED, vehicle).send(res);
 });
 
 export const deleteVehicle = asyncHandler(async (req, res) => {
-  await vehicleService.deleteVehicle(parseInt(req.params.id));
-  return new ApiResponse(HTTP_STATUS.OK, MESSAGES.VEHICLE_DELETED).send(res);
-=======
-  const vehicle = await vehicleService.updateVehicle(req.params.id, req.body);
-  new ApiResponse(HTTP_STATUS.OK, MESSAGES.VEHICLE_UPDATED, vehicle).send(res);
-});
-
-export const deleteVehicle = asyncHandler(async (req, res) => {
   await vehicleService.deleteVehicle(req.params.id);
-  new ApiResponse(HTTP_STATUS.OK, MESSAGES.VEHICLE_DELETED, null).send(res);
->>>>>>> Stashed changes
+  return new ApiResponse(HTTP_STATUS.OK, MESSAGES.VEHICLE_DELETED, null).send(res);
 });

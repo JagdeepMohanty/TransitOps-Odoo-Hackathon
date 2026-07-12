@@ -30,6 +30,7 @@ export const MESSAGES = {
   TRIP_COMPLETED: 'Trip completed successfully.',
   TRIP_CANCELLED: 'Trip cancelled successfully.',
   TRIP_INVALID_STATUS: 'Invalid trip status for this operation.',
+  TRIP_DELETED: 'Trip deleted successfully.',
 
   // Maintenance
   MAINTENANCE_NOT_FOUND: 'Maintenance log not found.',
