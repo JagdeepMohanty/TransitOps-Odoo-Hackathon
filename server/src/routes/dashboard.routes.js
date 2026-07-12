@@ -1,14 +1,12 @@
 import { Router } from 'express';
-import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { getKpis } from '../controllers/dashboard.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+import { authorize } from '../middleware/role.middleware.js';
 
 const router = Router();
 
-router.all('*', (req, res) => {
-  res.status(HTTP_STATUS.NOT_IMPLEMENTED).json({
-    success: false,
-    message: 'Dashboard module will be implemented in the next phase',
-    errors: [],
-  });
-});
+router.use(authenticate);
+
+router.get('/kpis', authorize('FLEET_MANAGER', 'DISPATCHER', 'FINANCIAL_ANALYST'), getKpis);
 
 export default router;

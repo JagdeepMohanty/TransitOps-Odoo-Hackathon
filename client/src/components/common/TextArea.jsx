@@ -1,61 +1,71 @@
-import { AlertCircle } from 'lucide-react';
+import { cn } from '@/utils'
 
-export default function TextArea({
-  id,
+/**
+ * Textarea
+ * @prop {string}  label      — field label
+ * @prop {string}  hint       — helper text
+ * @prop {string}  error      — error message
+ * @prop {boolean} required   — shows asterisk
+ * @prop {number}  maxLength  — enables character counter
+ * @prop {number}  rows       — visible rows (default: 4)
+ * @prop {boolean} resize     — allow manual resize (default: false)
+ */
+export default function Textarea({
   label,
   hint,
   error,
-  rows       = 4,
+  required,
   maxLength,
-  value      = '',
-  className  = '',
-  wrapperClass = '',
+  rows = 4,
+  resize = false,
+  className,
+  id,
+  value,
   ...props
 }) {
-  const hasError = Boolean(error);
+  const inputId    = id ?? label?.toLowerCase().replace(/\s+/g, '-')
+  const charCount  = typeof value === 'string' ? value.length : 0
 
   return (
-    <div className={`flex flex-col gap-1.5 ${wrapperClass}`}>
+    <div className="flex flex-col gap-1">
       {label && (
-        <div className="flex items-center justify-between">
-          <label htmlFor={id} className="input-label mb-0">
-            {label}
-            {props.required && <span className="text-danger ml-0.5">*</span>}
-          </label>
-          {maxLength && (
-            <span className="text-xs text-content-disabled">
-              {String(value).length}/{maxLength}
-            </span>
-          )}
-        </div>
+        <label htmlFor={inputId} className="text-sm font-medium text-slate-700 leading-none">
+          {label}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
+        </label>
       )}
 
       <textarea
-        id={id}
+        id={inputId}
         rows={rows}
+        required={required}
         maxLength={maxLength}
         value={value}
-        className={[
-          'w-full px-3.5 py-2.5 rounded-xl text-sm resize-y',
-          'bg-bg-secondary border text-content-primary',
-          'placeholder:text-content-disabled',
-          'focus:outline-none focus:ring-2 focus:border-transparent',
-          'disabled:opacity-40 disabled:cursor-not-allowed',
-          'transition-all duration-200',
-          hasError
-            ? 'border-danger focus:ring-danger/40'
-            : 'border-border-input hover:border-border-strong focus:ring-border-focus/50',
+        className={cn(
+          'w-full px-3 py-2.5 text-sm bg-white border rounded-lg',
+          'placeholder:text-slate-400 text-slate-900 leading-relaxed',
+          'transition duration-150 outline-none',
+          'focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500',
+          !resize && 'resize-none',
+          error
+            ? 'border-red-400 focus:ring-red-400/30 focus:border-red-400'
+            : 'border-slate-200 hover:border-slate-300',
           className,
-        ].join(' ')}
+        )}
         {...props}
       />
 
-      {hint  && !error && <p className="text-xs text-content-muted">{hint}</p>}
-      {error && (
-        <p className="flex items-center gap-1.5 text-xs text-danger-text">
-          <AlertCircle className="w-3.5 h-3.5 shrink-0" />{error}
-        </p>
-      )}
+      <div className="flex items-center justify-between">
+        <div>
+          {error && <p className="text-xs text-red-500">{error}</p>}
+          {hint && !error && <p className="text-xs text-slate-400">{hint}</p>}
+        </div>
+        {maxLength && (
+          <p className={cn('text-xs tabular-nums', charCount >= maxLength ? 'text-red-500' : 'text-slate-400')}>
+            {charCount}/{maxLength}
+          </p>
+        )}
+      </div>
     </div>
-  );
+  )
 }

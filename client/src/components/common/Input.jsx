@@ -1,67 +1,74 @@
-import { AlertCircle } from 'lucide-react';
+import { cn } from '@/utils'
 
+/**
+ * Input
+ * @prop {string}  label      — field label
+ * @prop {string}  hint       — helper text below input
+ * @prop {string}  error      — error message (turns border red)
+ * @prop {node}    leftAddon  — icon/element inside left of input
+ * @prop {node}    rightAddon — icon/element inside right of input
+ * @prop {boolean} required   — shows red asterisk on label
+ */
 export default function Input({
-  id,
   label,
   hint,
   error,
-  icon,
-  iconRight,
-  className = '',
-  wrapperClass = '',
+  leftAddon,
+  rightAddon,
+  required,
+  className,
+  id,
   ...props
 }) {
-  const Icon      = icon;
-  const IconRight = iconRight;
-  const hasError  = Boolean(error);
+  const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-')
 
   return (
-    <div className={`flex flex-col gap-1.5 ${wrapperClass}`}>
+    <div className="flex flex-col gap-1">
       {label && (
-        <label htmlFor={id} className="input-label">
+        <label htmlFor={inputId} className="text-sm font-medium text-slate-700 leading-none">
           {label}
-          {props.required && <span className="text-danger ml-0.5">*</span>}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
       )}
 
-      <div className="relative">
-        {Icon && (
-          <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-content-disabled pointer-events-none" />
+      <div className="relative flex items-center">
+        {leftAddon && (
+          <span className="absolute left-3 flex items-center text-slate-400 pointer-events-none">
+            {leftAddon}
+          </span>
         )}
 
         <input
-          id={id}
-          className={[
-            'w-full py-2.5 rounded-xl text-sm',
-            'bg-bg-secondary border text-content-primary',
-            'placeholder:text-content-disabled',
-            'focus:outline-none focus:ring-2 focus:border-transparent',
-            'disabled:opacity-40 disabled:cursor-not-allowed',
-            'transition-all duration-200',
-            Icon      ? 'pl-10' : 'pl-3.5',
-            IconRight ? 'pr-10' : 'pr-3.5',
-            hasError
-              ? 'border-danger focus:ring-danger/40'
-              : 'border-border-input hover:border-border-strong focus:ring-border-focus/50',
+          id={inputId}
+          required={required}
+          className={cn(
+            'w-full h-9 px-3 text-sm bg-white border rounded-lg',
+            'placeholder:text-slate-400 text-slate-900',
+            'transition duration-150 outline-none',
+            'focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500',
+            error
+              ? 'border-red-400 focus:ring-red-400/30 focus:border-red-400'
+              : 'border-slate-200 hover:border-slate-300',
+            leftAddon  && 'pl-9',
+            rightAddon && 'pr-9',
             className,
-          ].join(' ')}
+          )}
           {...props}
         />
 
-        {IconRight && !hasError && (
-          <IconRight className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-content-disabled pointer-events-none" />
-        )}
-        {hasError && (
-          <AlertCircle className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-danger pointer-events-none" />
+        {rightAddon && (
+          <span className="absolute right-3 flex items-center text-slate-400 pointer-events-none">
+            {rightAddon}
+          </span>
         )}
       </div>
 
-      {hint  && !error && <p className="text-xs text-content-muted">{hint}</p>}
-      {error && (
-        <p className="flex items-center gap-1.5 text-xs text-danger-text">
-          <AlertCircle className="w-3.5 h-3.5 shrink-0" />{error}
-        </p>
+      {error && !hint && (
+        <p className="text-xs text-red-500 flex items-center gap-1">{error}</p>
+      )}
+      {hint && !error && (
+        <p className="text-xs text-slate-400">{hint}</p>
       )}
     </div>
-  );
+  )
 }

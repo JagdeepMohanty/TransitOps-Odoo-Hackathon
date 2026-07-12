@@ -5,16 +5,18 @@ import PageShell from '@components/layout/PageShell';
 import Button    from '@components/common/Button';
 import Input     from '@components/common/Input';
 import Select    from '@components/common/Select';
-import TextArea  from '@components/common/TextArea';
-
-const VEHICLE_TYPES  = ['Heavy Truck','Medium Truck','Light Truck','Mini Truck','Tanker','Trailer'];
-const FUEL_TYPES     = ['Diesel','Petrol','CNG','Electric','Hybrid'];
-const MAKES          = ['Tata','Ashok Leyland','Eicher','Mahindra','Volvo','Mercedes-Benz','MAN','BharatBenz'];
+import { vehiclesApi } from '@api/vehicles.api';
+import { VEHICLE_TYPES } from '@utils/constants';
 
 const INITIAL = {
-  plate: '', make: '', model: '', year: '', type: '', fuel: '',
-  capacity: '', color: '', vin: '', insurance: '', insuranceExpiry: '',
-  fitness: '', fitnessExpiry: '', notes: '',
+  registrationNumber: '',
+  name:               '',
+  model:              '',
+  type:               '',
+  region:             '',
+  maxLoadCapacity:    '',
+  acquisitionCost:    '',
+  odometer:           '0',
 };
 
 export default function AddVehiclePage() {
@@ -22,6 +24,7 @@ export default function AddVehiclePage() {
   const [form,    setForm]    = useState(INITIAL);
   const [errors,  setErrors]  = useState({});
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState('');
 
   function set(field, value) {
     setForm(p => ({ ...p, [field]: value }));
@@ -30,12 +33,13 @@ export default function AddVehiclePage() {
 
   function validate() {
     const e = {};
-    if (!form.plate.trim())  e.plate = 'Registration plate is required';
-    if (!form.make)          e.make  = 'Make is required';
-    if (!form.model.trim())  e.model = 'Model is required';
-    if (!form.year)          e.year  = 'Year is required';
-    if (!form.type)          e.type  = 'Vehicle type is required';
-    if (!form.fuel)          e.fuel  = 'Fuel type is required';
+    if (!form.registrationNumber.trim()) e.registrationNumber = 'Registration number is required';
+    if (!form.name.trim())               e.name               = 'Name is required';
+    if (!form.type)                      e.type               = 'Vehicle type is required';
+    if (!form.maxLoadCapacity)           e.maxLoadCapacity    = 'Max load capacity is required';
+    else if (Number(form.maxLoadCapacity) <= 0) e.maxLoadCapacity = 'Must be greater than 0';
+    if (!form.acquisitionCost)           e.acquisitionCost    = 'Acquisition cost is required';
+    else if (Number(form.acquisitionCost) <= 0) e.acquisitionCost = 'Must be greater than 0';
     return e;
   }
 
@@ -44,9 +48,24 @@ export default function AddVehiclePage() {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
-    await new Promise(r => setTimeout(r, 800));
-    setLoading(false);
-    navigate('/vehicles');
+    setApiError('');
+    try {
+      await vehiclesApi.create({
+        registrationNumber: form.registrationNumber.trim(),
+        name:               form.name.trim(),
+        model:              form.model.trim() || undefined,
+        type:               form.type,
+        region:             form.region.trim() || undefined,
+        maxLoadCapacity:    Number(form.maxLoadCapacity),
+        acquisitionCost:    Number(form.acquisitionCost),
+        odometer:           Number(form.odometer) || 0,
+      });
+      navigate('/vehicles');
+    } catch (err) {
+      setApiError(err.response?.data?.message ?? 'Failed to create vehicle');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -62,49 +81,94 @@ export default function AddVehiclePage() {
       <form onSubmit={handleSubmit} noValidate>
         <div className="space-y-4">
 
-          {/* Basic Info */}
+          {apiError && (
+            <div className="px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
+              {apiError}
+            </div>
+          )}
+
           <div className="bg-bg-card border border-border-card rounded-xl shadow-card">
             <div className="flex items-center gap-2 px-6 py-4 border-b border-border">
               <Truck className="w-4 h-4 text-content-muted" />
               <h2 className="text-sm font-semibold text-content-primary">Vehicle Information</h2>
             </div>
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Input id="plate"    label="Registration Plate" placeholder="KA-01-AB-1234" value={form.plate}    onChange={e => set('plate', e.target.value)}    error={errors.plate}    required />
-              <Select id="make"    label="Make"               options={MAKES}              value={form.make}     onChange={e => set('make', e.target.value)}     error={errors.make}     required placeholder="Select make" />
-              <Input id="model"    label="Model"              placeholder="Prima 4028.S"   value={form.model}    onChange={e => set('model', e.target.value)}    error={errors.model}    required />
-              <Input id="year"     label="Year"               type="number" placeholder="2023" value={form.year} onChange={e => set('year', e.target.value)}    error={errors.year}     required min="2000" max="2025" />
-              <Select id="type"    label="Vehicle Type"       options={VEHICLE_TYPES}      value={form.type}     onChange={e => set('type', e.target.value)}     error={errors.type}     required placeholder="Select type" />
-              <Select id="fuel"    label="Fuel Type"          options={FUEL_TYPES}         value={form.fuel}     onChange={e => set('fuel', e.target.value)}     error={errors.fuel}     required placeholder="Select fuel" />
-              <Input id="capacity" label="Load Capacity (tons)" placeholder="10"           value={form.capacity} onChange={e => set('capacity', e.target.value)} />
-              <Input id="color"    label="Color"              placeholder="White"          value={form.color}    onChange={e => set('color', e.target.value)}    />
-              <Input id="vin"      label="VIN / Chassis No."  placeholder="MAT123456789"   value={form.vin}      onChange={e => set('vin', e.target.value)}      />
+              <Input
+                id="registrationNumber"
+                label="Registration Number"
+                placeholder="MH12AB1234"
+                value={form.registrationNumber}
+                onChange={e => set('registrationNumber', e.target.value)}
+                error={errors.registrationNumber}
+                required
+              />
+              <Input
+                id="name"
+                label="Vehicle Name"
+                placeholder="Tata Prima"
+                value={form.name}
+                onChange={e => set('name', e.target.value)}
+                error={errors.name}
+                required
+              />
+              <Input
+                id="model"
+                label="Model"
+                placeholder="Prima 4028.S"
+                value={form.model}
+                onChange={e => set('model', e.target.value)}
+              />
+              <Select
+                id="type"
+                label="Vehicle Type"
+                options={VEHICLE_TYPES}
+                value={form.type}
+                onChange={e => set('type', e.target.value)}
+                error={errors.type}
+                required
+                placeholder="Select type"
+              />
+              <Input
+                id="region"
+                label="Region"
+                placeholder="North"
+                value={form.region}
+                onChange={e => set('region', e.target.value)}
+              />
+              <Input
+                id="maxLoadCapacity"
+                label="Max Load Capacity (kg)"
+                type="number"
+                placeholder="28000"
+                value={form.maxLoadCapacity}
+                onChange={e => set('maxLoadCapacity', e.target.value)}
+                error={errors.maxLoadCapacity}
+                required
+                min="1"
+              />
+              <Input
+                id="acquisitionCost"
+                label="Acquisition Cost (₹)"
+                type="number"
+                placeholder="3500000"
+                value={form.acquisitionCost}
+                onChange={e => set('acquisitionCost', e.target.value)}
+                error={errors.acquisitionCost}
+                required
+                min="1"
+              />
+              <Input
+                id="odometer"
+                label="Odometer (km)"
+                type="number"
+                placeholder="0"
+                value={form.odometer}
+                onChange={e => set('odometer', e.target.value)}
+                min="0"
+              />
             </div>
           </div>
 
-          {/* Documents */}
-          <div className="bg-bg-card border border-border-card rounded-xl shadow-card">
-            <div className="px-6 py-4 border-b border-border">
-              <h2 className="text-sm font-semibold text-content-primary">Documents & Compliance</h2>
-            </div>
-            <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Input id="insurance"       label="Insurance Policy No."  placeholder="POL-2024-001"  value={form.insurance}       onChange={e => set('insurance', e.target.value)}       />
-              <Input id="insuranceExpiry" label="Insurance Expiry"      type="date"                 value={form.insuranceExpiry} onChange={e => set('insuranceExpiry', e.target.value)} />
-              <Input id="fitness"         label="Fitness Certificate No." placeholder="FC-2024-001" value={form.fitness}         onChange={e => set('fitness', e.target.value)}         />
-              <Input id="fitnessExpiry"   label="Fitness Expiry"        type="date"                 value={form.fitnessExpiry}   onChange={e => set('fitnessExpiry', e.target.value)}   />
-            </div>
-          </div>
-
-          {/* Notes */}
-          <div className="bg-bg-card border border-border-card rounded-xl shadow-card">
-            <div className="px-6 py-4 border-b border-border">
-              <h2 className="text-sm font-semibold text-content-primary">Additional Notes</h2>
-            </div>
-            <div className="p-6">
-              <TextArea id="notes" label="Notes" placeholder="Any additional information about this vehicle…" value={form.notes} onChange={e => set('notes', e.target.value)} rows={3} />
-            </div>
-          </div>
-
-          {/* Actions */}
           <div className="flex items-center justify-end gap-3">
             <Link to="/vehicles"><Button variant="secondary">Cancel</Button></Link>
             <Button type="submit" icon={Save} loading={loading}>Save Vehicle</Button>

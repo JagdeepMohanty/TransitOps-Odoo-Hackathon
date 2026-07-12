@@ -1,30 +1,18 @@
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle } from 'lucide-react'
+import { cn } from '@/utils'
 
-export default function ErrorMessage({
-  title       = 'Something went wrong',
-  message,
-  onRetry,
-  className   = '',
-}) {
+/**
+ * ErrorMessage — displays an inline error with an icon.
+ *
+ * @prop {string}  message   — error text to display
+ * @prop {string}  className — optional extra classes
+ */
+export default function ErrorMessage({ message, className }) {
+  if (!message) return null
   return (
-    <div className={`flex flex-col items-center justify-center py-16 text-center ${className}`}>
-      <div className="p-4 rounded-2xl bg-danger-muted mb-4">
-        <AlertCircle className="w-10 h-10 text-danger-text" />
-      </div>
-      <h3 className="text-base font-semibold text-content-secondary">{title}</h3>
-      {message && (
-        <p className="mt-1.5 text-sm text-content-muted max-w-sm">{message}</p>
-      )}
-      {onRetry && (
-        <button
-          type="button"
-          onClick={onRetry}
-          className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-bg-card border border-border text-sm font-medium text-content-secondary hover:bg-bg-hover hover:text-content-primary hover:border-border-strong transition-all duration-200"
-        >
-          <RefreshCw className="w-4 h-4" />
-          Try again
-        </button>
-      )}
+    <div className={cn('flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-lg', className)}>
+      <AlertCircle size={15} className="text-red-500 shrink-0" />
+      <p className="text-sm text-red-600">{message}</p>
     </div>
-  );
+  )
 }

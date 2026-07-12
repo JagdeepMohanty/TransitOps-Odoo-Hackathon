@@ -16,7 +16,9 @@ export const authenticate = async (req, res, next) => {
       payload = verifyJWT(token);
     } catch (err) {
       const message =
-        err.name === 'TokenExpiredError' ? 'Session expired, please log in again' : 'Invalid token';
+        err.name === 'TokenExpiredError'
+          ? 'Session expired, please log in again'
+          : 'Invalid token';
       throw new ApiError(HTTP_STATUS.UNAUTHORIZED, message);
     }
 

@@ -1,66 +1,81 @@
-import { ChevronDown, AlertCircle } from 'lucide-react';
+import { ChevronDown } from 'lucide-react'
+import { cn } from '@/utils'
 
+/**
+ * Select
+ * @prop {string}   label       — field label
+ * @prop {string}   hint        — helper text
+ * @prop {string}   error       — error message
+ * @prop {boolean}  required    — shows asterisk
+ * @prop {string}   placeholder — first disabled option (default: 'Select an option')
+ * @prop {Array}    options     — [{ value, label, disabled? }]
+ * @prop {node}     leftAddon   — icon inside left of select
+ */
 export default function Select({
-  id,
   label,
   hint,
   error,
-  options      = [],
-  placeholder  = 'Select an option',
-  className    = '',
-  wrapperClass = '',
+  required,
+  placeholder = 'Select an option',
+  options = [],
+  leftAddon,
+  className,
+  id,
   ...props
 }) {
-  const hasError = Boolean(error);
+  const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-')
 
   return (
-    <div className={`flex flex-col gap-1.5 ${wrapperClass}`}>
+    <div className="flex flex-col gap-1">
       {label && (
-        <label htmlFor={id} className="input-label">
+        <label htmlFor={inputId} className="text-sm font-medium text-slate-700 leading-none">
           {label}
-          {props.required && <span className="text-danger ml-0.5">*</span>}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
       )}
 
-      <div className="relative">
+      <div className="relative flex items-center">
+        {leftAddon && (
+          <span className="absolute left-3 flex items-center text-slate-400 pointer-events-none z-10">
+            {leftAddon}
+          </span>
+        )}
+
         <select
-          id={id}
-          className={[
-            'w-full pl-3.5 pr-10 py-2.5 rounded-xl text-sm appearance-none',
-            'bg-bg-secondary border text-content-primary',
-            'focus:outline-none focus:ring-2 focus:border-transparent',
-            'disabled:opacity-40 disabled:cursor-not-allowed',
-            'transition-all duration-200 cursor-pointer',
-            hasError
-              ? 'border-danger focus:ring-danger/40'
-              : 'border-border-input hover:border-border-strong focus:ring-border-focus/50',
+          id={inputId}
+          required={required}
+          className={cn(
+            'w-full h-9 pr-9 text-sm bg-white border rounded-lg appearance-none',
+            'text-slate-900 transition duration-150 outline-none cursor-pointer',
+            'focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500',
+            error
+              ? 'border-red-400 focus:ring-red-400/30 focus:border-red-400'
+              : 'border-slate-200 hover:border-slate-300',
+            leftAddon ? 'pl-9' : 'pl-3',
             className,
-          ].join(' ')}
+          )}
           {...props}
         >
           {placeholder && (
-            <option value="" disabled>{placeholder}</option>
+            <option value="" disabled>
+              {placeholder}
+            </option>
           )}
-          {options.map((opt) => (
-            <option
-              key={opt.value ?? opt}
-              value={opt.value ?? opt}
-              className="bg-bg-dropdown text-content-primary"
-            >
-              {opt.label ?? opt}
+          {options.map(({ value, label: optLabel, disabled }) => (
+            <option key={value} value={value} disabled={disabled}>
+              {optLabel}
             </option>
           ))}
         </select>
 
-        <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-content-disabled pointer-events-none" />
+        <ChevronDown
+          size={15}
+          className="absolute right-3 text-slate-400 pointer-events-none"
+        />
       </div>
 
-      {hint  && !error && <p className="text-xs text-content-muted">{hint}</p>}
-      {error && (
-        <p className="flex items-center gap-1.5 text-xs text-danger-text">
-          <AlertCircle className="w-3.5 h-3.5 shrink-0" />{error}
-        </p>
-      )}
+      {error && <p className="text-xs text-red-500">{error}</p>}
+      {hint && !error && <p className="text-xs text-slate-400">{hint}</p>}
     </div>
-  );
+  )
 }

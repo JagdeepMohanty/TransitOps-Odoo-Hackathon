@@ -1,63 +1,57 @@
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react'
+import { cn } from '@/utils'
 
 const VARIANTS = {
-  primary:   'bg-primary text-white hover:bg-primary-hover active:bg-primary-active shadow-sm hover:shadow-glow-sm',
-  secondary: 'bg-bg-card text-content-secondary border border-border hover:bg-bg-hover hover:text-content-primary hover:border-border-strong',
-  success:   'bg-success text-white hover:bg-green-600 active:bg-green-700 shadow-sm',
-  warning:   'bg-warning text-white hover:bg-amber-600 active:bg-amber-700 shadow-sm',
-  danger:    'bg-danger text-white hover:bg-danger-hover active:bg-red-700 shadow-sm',
-  ghost:     'bg-transparent text-content-secondary hover:bg-bg-hover hover:text-content-primary',
-  outline:   'bg-transparent text-primary border border-primary hover:bg-primary/10',
-};
+  primary:   'btn-primary',
+  secondary: 'btn-secondary',
+  danger:    'btn-danger',
+  ghost:     'btn-ghost',
+  outline:   'btn-outline',
+  success:   'btn-success',
+}
 
 const SIZES = {
-  xs: 'px-2.5 py-1.5 text-xs rounded-lg gap-1.5',
-  sm: 'px-3 py-2 text-xs rounded-lg gap-1.5',
-  md: 'px-4 py-2.5 text-sm rounded-xl gap-2',
-  lg: 'px-5 py-3 text-sm rounded-xl gap-2',
-  xl: 'px-6 py-3.5 text-base rounded-xl gap-2.5',
-};
+  xs: 'h-7  px-2.5 text-xs  gap-1   rounded-lg',
+  sm: 'h-8  px-3.5 text-xs  gap-1.5 rounded-xl',
+  md: 'h-9  px-4   text-sm  gap-2   rounded-xl',
+  lg: 'h-11 px-5   text-sm  gap-2   rounded-xl',
+  xl: 'h-12 px-6   text-base gap-2.5 rounded-2xl',
+}
 
 export default function Button({
   children,
   variant   = 'primary',
   size      = 'md',
   loading   = false,
-  disabled  = false,
-  icon,
-  iconRight,
   fullWidth = false,
-  className = '',
-  type      = 'button',
-  onClick,
+  leftIcon,
+  rightIcon,
+  className,
+  disabled,
   ...props
 }) {
-  const Icon      = icon;
-  const IconRight = iconRight;
-
   return (
     <button
-      type={type}
-      onClick={onClick}
       disabled={disabled || loading}
-      className={[
-        'inline-flex items-center justify-center font-medium',
-        'transition-all duration-200',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base',
-        'disabled:opacity-40 disabled:cursor-not-allowed',
-        VARIANTS[variant] ?? VARIANTS.primary,
+      className={cn(
+        VARIANTS[variant] ?? 'btn-primary',
         SIZES[size]       ?? SIZES.md,
-        fullWidth ? 'w-full' : '',
+        fullWidth && 'w-full',
         className,
-      ].join(' ')}
+      )}
       {...props}
     >
-      {loading
-        ? <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-        : Icon && <Icon className="w-4 h-4 shrink-0" />
-      }
-      {children}
-      {!loading && IconRight && <IconRight className="w-4 h-4 shrink-0" />}
+      {loading ? (
+        <Loader2 size={14} className="animate-spin shrink-0" />
+      ) : leftIcon ? (
+        <span className="shrink-0 flex items-center">{leftIcon}</span>
+      ) : null}
+
+      {children && <span className="leading-none">{children}</span>}
+
+      {!loading && rightIcon && (
+        <span className="shrink-0 flex items-center">{rightIcon}</span>
+      )}
     </button>
-  );
+  )
 }

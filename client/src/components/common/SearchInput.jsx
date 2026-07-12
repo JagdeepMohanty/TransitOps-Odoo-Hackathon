@@ -1,2 +1,2 @@
-// Backward-compatible alias — use SearchBar for new code
-export { default } from './SearchBar';
+// Backward-compatible alias — new code should import SearchBar directly
+export { default } from './SearchBar'

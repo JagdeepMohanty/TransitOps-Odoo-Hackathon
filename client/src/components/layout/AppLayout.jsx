@@ -1,64 +1,63 @@
-import { useState, useCallback } from 'react';
-import { Outlet } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import MobileSidebar from './MobileSidebar';
-import Navbar from './Navbar';
+import { useState, useEffect, useRef } from 'react'
+import { Outlet } from 'react-router-dom'
+import Sidebar from '@/components/layout/Sidebar'
+import Navbar  from '@/components/layout/Navbar'
 
-function Footer() {
-  return (
-    <footer className="shrink-0 border-t border-border bg-bg-secondary px-6 py-3">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-        <p className="text-xs text-content-disabled">
-          © {new Date().getFullYear()} TransitOps. All rights reserved.
-        </p>
-        <p className="text-xs text-content-disabled">
-          v1.0.0 · Enterprise Transport Management
-        </p>
-      </div>
-    </footer>
-  );
-}
+const SIDEBAR_FULL      = 260
+const SIDEBAR_COLLAPSED = 68
+const LG_BREAKPOINT     = 1024
 
 export default function AppLayout() {
-  const [collapsed,    setCollapsed]    = useState(false);
-  const [mobileOpen,  setMobileOpen]   = useState(false);
+  const [collapsed,  setCollapsed]  = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const mainRef = useRef(null)
 
-  const toggleCollapse = useCallback(() => setCollapsed(p => !p), []);
-  const openMobile     = useCallback(() => setMobileOpen(true),   []);
-  const closeMobile    = useCallback(() => setMobileOpen(false),  []);
+  // Sync content margin with sidebar width on desktop; zero on mobile
+  useEffect(() => {
+    const el = mainRef.current
+    if (!el) return
+
+    const update = () => {
+      const isDesktop = window.innerWidth >= LG_BREAKPOINT
+      el.style.marginLeft = isDesktop
+        ? `${collapsed ? SIDEBAR_COLLAPSED : SIDEBAR_FULL}px`
+        : '0px'
+    }
+
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [collapsed])
+
+  // Close mobile drawer on resize to desktop
+  useEffect(() => {
+    const handler = () => { if (window.innerWidth >= LG_BREAKPOINT) setMobileOpen(false) }
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
 
   return (
-    <div className="flex h-screen bg-bg-base overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-slate-50">
+      <Sidebar
+        collapsed={collapsed}
+        mobileOpen={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        onToggleCollapse={() => setCollapsed(v => !v)}
+      />
 
-      {/* ── Desktop Sidebar — fixed, visible lg+ ── */}
-      <div className="hidden lg:flex shrink-0 transition-all duration-300 ease-in-out"
-           style={{ width: collapsed ? '80px' : '260px' }}>
-        <Sidebar
-          collapsed={collapsed}
-          onToggle={toggleCollapse}
-          isMobile={false}
-        />
-      </div>
-
-      {/* ── Mobile Drawer Sidebar ── */}
-      <MobileSidebar open={mobileOpen} onClose={closeMobile} />
-
-      {/* ── Right Column: Navbar + Content + Footer ── */}
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-
-        {/* Sticky Navbar — 72px */}
-        <Navbar onMenuClick={openMobile} />
-
-        {/* Scrollable Main Content */}
-        <main className="flex-1 overflow-y-auto bg-bg-base">
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <Outlet />
-          </div>
+      {/*
+        Desktop: content shifts right by sidebar width (via useEffect above).
+        Mobile/tablet: sidebar is a fixed overlay, content stays full-width.
+      */}
+      <div
+        ref={mainRef}
+        className="flex flex-col flex-1 min-w-0 overflow-hidden transition-[margin-left] duration-[250ms] ease-in-out"
+      >
+        <Navbar onMenuClick={() => setMobileOpen(true)} />
+        <main className="flex-1 overflow-y-auto overflow-x-hidden">
+          <Outlet />
         </main>
-
-        {/* Footer */}
-        <Footer />
       </div>
     </div>
-  );
+  )
 }
