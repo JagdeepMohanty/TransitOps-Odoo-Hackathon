@@ -1,0 +1,8 @@
+export const EXPENSE_TYPE = Object.freeze({
+  FUEL: 'FUEL',
+  TOLL: 'TOLL',
+  MAINTENANCE: 'MAINTENANCE',
+  PARKING: 'PARKING',
+  REPAIR: 'REPAIR',
+  OTHER: 'OTHER',
+});

@@ -1,0 +1,26 @@
+export const VEHICLE_STATUS = Object.freeze({
+  AVAILABLE: 'AVAILABLE',
+  ON_TRIP: 'ON_TRIP',
+  IN_SHOP: 'IN_SHOP',
+  RETIRED: 'RETIRED',
+});
+
+export const DRIVER_STATUS = Object.freeze({
+  AVAILABLE: 'AVAILABLE',
+  ON_TRIP: 'ON_TRIP',
+  OFF_DUTY: 'OFF_DUTY',
+  SUSPENDED: 'SUSPENDED',
+});
+
+export const TRIP_STATUS = Object.freeze({
+  DRAFT: 'DRAFT',
+  DISPATCHED: 'DISPATCHED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+});
+
+export const MAINTENANCE_STATUS = Object.freeze({
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+});
