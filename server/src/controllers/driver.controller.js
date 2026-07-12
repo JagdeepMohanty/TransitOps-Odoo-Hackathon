@@ -10,8 +10,13 @@ export const getDrivers = asyncHandler(async (req, res) => {
 });
 
 export const getDriver = asyncHandler(async (req, res) => {
+<<<<<<< Updated upstream
   const driver = await driverService.getDriverById(parseInt(req.params.id));
   return new ApiResponse(HTTP_STATUS.OK, 'Driver fetched.', driver).send(res);
+=======
+  const driver = await driverService.getDriverById(req.params.id);
+  new ApiResponse(HTTP_STATUS.OK, 'Driver retrieved successfully.', driver).send(res);
+>>>>>>> Stashed changes
 });
 
 export const getAvailableDrivers = asyncHandler(async (req, res) => {
@@ -25,6 +30,7 @@ export const createDriver = asyncHandler(async (req, res) => {
 });
 
 export const updateDriver = asyncHandler(async (req, res) => {
+<<<<<<< Updated upstream
   const driver = await driverService.updateDriver(parseInt(req.params.id), req.body);
   return new ApiResponse(HTTP_STATUS.OK, MESSAGES.DRIVER_UPDATED, driver).send(res);
 });
@@ -32,4 +38,13 @@ export const updateDriver = asyncHandler(async (req, res) => {
 export const deleteDriver = asyncHandler(async (req, res) => {
   await driverService.deleteDriver(parseInt(req.params.id));
   return new ApiResponse(HTTP_STATUS.OK, MESSAGES.DRIVER_DELETED).send(res);
+=======
+  const driver = await driverService.updateDriver(req.params.id, req.body);
+  new ApiResponse(HTTP_STATUS.OK, MESSAGES.DRIVER_UPDATED, driver).send(res);
+});
+
+export const deleteDriver = asyncHandler(async (req, res) => {
+  await driverService.deleteDriver(req.params.id);
+  new ApiResponse(HTTP_STATUS.OK, MESSAGES.DRIVER_DELETED, null).send(res);
+>>>>>>> Stashed changes
 });

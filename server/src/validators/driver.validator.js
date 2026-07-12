@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DRIVER_STATUS } from '../constants/statuses.js';
 
 export const createDriverSchema = z.object({
   name: z.string().min(1),
@@ -10,4 +11,12 @@ export const createDriverSchema = z.object({
   status: z.enum(['AVAILABLE', 'ON_TRIP', 'OFF_DUTY', 'SUSPENDED']).default('AVAILABLE'),
 });
 
+<<<<<<< Updated upstream
 export const updateDriverSchema = createDriverSchema.partial();
+=======
+export const updateDriverSchema = createDriverSchema
+  .partial()
+  .extend({
+    status: z.enum(Object.values(DRIVER_STATUS)).optional(),
+  });
+>>>>>>> Stashed changes
