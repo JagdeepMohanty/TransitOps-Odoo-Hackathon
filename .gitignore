@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+client/node_modules/
+server/node_modules/
 .pnp
 .pnp.js
 
@@ -8,14 +10,17 @@ dist/
 build/
 client/dist/
 
-# Environment variables
+# Environment variables — never commit real secrets
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.*
+.env.development
+.env.production
+server/.env
+client/.env
+# Keep examples
 !.env.example
+!server/.env.example
+!client/.env.example
 
 # Logs
 logs/
