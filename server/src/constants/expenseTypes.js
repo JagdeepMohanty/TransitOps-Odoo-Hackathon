@@ -1,8 +1,8 @@
-const EXPENSE_TYPES = {
-  FUEL: 'Fuel',
-  TOLL: 'Toll',
-  MAINTENANCE: 'Maintenance',
-  OTHER: 'Other',
+export const EXPENSE_TYPES = {
+  FUEL: 'FUEL',
+  TOLL: 'TOLL',
+  MAINTENANCE: 'MAINTENANCE',
+  PARKING: 'PARKING',
+  REPAIR: 'REPAIR',
+  OTHER: 'OTHER',
 };
-
-module.exports = { EXPENSE_TYPES };
