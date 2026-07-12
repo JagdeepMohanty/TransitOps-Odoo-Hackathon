@@ -1,4 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { formatCurrency } from '@/utils'
 
 const DATA = [
   { month: 'Apr', amount: 42000 },
@@ -17,8 +18,9 @@ export default function ExpenseChart() {
         <BarChart data={DATA} barSize={28}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
           <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v / 1000}k`} />
-          <Tooltip formatter={(v) => [`$${v.toLocaleString()}`, 'Expenses']} />
+          <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false}
+            tickFormatter={(v) => `₹${v / 1000}k`} />
+          <Tooltip formatter={(v) => [formatCurrency(v), 'Expenses']} />
           <Bar dataKey="amount" fill="#2563eb" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>

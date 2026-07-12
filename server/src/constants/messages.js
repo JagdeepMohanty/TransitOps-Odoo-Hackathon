@@ -1,6 +1,9 @@
 export const MESSAGES = {
   // Vehicle
   VEHICLE_NOT_FOUND: 'Vehicle not found.',
+  VEHICLE_ON_TRIP_MAINTENANCE: 'Cannot create maintenance: vehicle is currently on a trip.',
+  VEHICLE_RETIRED_MAINTENANCE: 'Cannot create maintenance: vehicle is retired.',
+  VEHICLE_ALREADY_IN_MAINTENANCE: 'Vehicle already has an active maintenance record.',
   VEHICLE_REG_EXISTS: 'Vehicle registration number already exists.',
   VEHICLE_NOT_AVAILABLE: 'Vehicle is not available for dispatch.',
   VEHICLE_IN_SHOP: 'Vehicle is currently in maintenance shop.',

@@ -4,6 +4,6 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 import { HTTP_STATUS } from '../constants/httpStatus.js';
 
 export const getKpis = asyncHandler(async (req, res) => {
-  const data = await dashboardService.getKpis();
+  const data = await dashboardService.getKpis(req.query);
   return new ApiResponse(HTTP_STATUS.OK, 'KPIs retrieved successfully.', data).send(res);
 });
