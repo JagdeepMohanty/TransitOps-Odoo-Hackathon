@@ -1,10 +1,10 @@
-const driverRepo = require('../repositories/driver.repository');
-const { ApiError } = require('../utils/ApiError');
-const { MESSAGES } = require('../constants/messages');
-const { HTTP_STATUS } = require('../constants/httpStatus');
-const { getPagination, paginatedResponse } = require('../utils/pagination');
+import * as driverRepo from '../repositories/driver.repository.js';
+import { ApiError } from '../utils/ApiError.js';
+import { MESSAGES } from '../constants/messages.js';
+import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { getPagination, paginatedResponse } from '../utils/pagination.js';
 
-const getAllDrivers = async (query) => {
+export const getAllDrivers = async (query) => {
   const { page, limit, skip } = getPagination(query);
   const filters = {};
   if (query.status) filters.status = query.status;
@@ -16,21 +16,21 @@ const getAllDrivers = async (query) => {
   return paginatedResponse(drivers, total, page, limit);
 };
 
-const getDriverById = async (id) => {
+export const getDriverById = async (id) => {
   const driver = await driverRepo.findById(id);
   if (!driver) throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.DRIVER_NOT_FOUND);
   return driver;
 };
 
-const getAvailableDrivers = async () => driverRepo.findAvailable();
+export const getAvailableDrivers = async () => driverRepo.findAvailable();
 
-const createDriver = async (data) => {
+export const createDriver = async (data) => {
   const existing = await driverRepo.findByLicense(data.licenseNumber);
   if (existing) throw new ApiError(HTTP_STATUS.CONFLICT, MESSAGES.DRIVER_LICENSE_EXISTS);
   return driverRepo.create(data);
 };
 
-const updateDriver = async (id, data) => {
+export const updateDriver = async (id, data) => {
   const driver = await driverRepo.findById(id);
   if (!driver) throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.DRIVER_NOT_FOUND);
 
@@ -41,10 +41,8 @@ const updateDriver = async (id, data) => {
   return driverRepo.update(id, data);
 };
 
-const deleteDriver = async (id) => {
+export const deleteDriver = async (id) => {
   const driver = await driverRepo.findById(id);
   if (!driver) throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.DRIVER_NOT_FOUND);
   return driverRepo.remove(id);
 };
-
-module.exports = { getAllDrivers, getDriverById, getAvailableDrivers, createDriver, updateDriver, deleteDriver };

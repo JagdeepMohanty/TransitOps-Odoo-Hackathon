@@ -1,11 +1,11 @@
-const expenseRepo = require('../repositories/expense.repository');
-const vehicleRepo = require('../repositories/vehicle.repository');
-const { ApiError } = require('../utils/ApiError');
-const { MESSAGES } = require('../constants/messages');
-const { HTTP_STATUS } = require('../constants/httpStatus');
-const { getPagination, paginatedResponse } = require('../utils/pagination');
+import * as expenseRepo from '../repositories/expense.repository.js';
+import * as vehicleRepo from '../repositories/vehicle.repository.js';
+import { ApiError } from '../utils/ApiError.js';
+import { MESSAGES } from '../constants/messages.js';
+import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { getPagination, paginatedResponse } from '../utils/pagination.js';
 
-const getAllExpenses = async (query) => {
+export const getAllExpenses = async (query) => {
   const { page, limit, skip } = getPagination(query);
   const filters = {};
   if (query.vehicleId) filters.vehicleId = parseInt(query.vehicleId);
@@ -19,10 +19,8 @@ const getAllExpenses = async (query) => {
   return paginatedResponse(expenses, total, page, limit);
 };
 
-const createExpense = async (data) => {
+export const createExpense = async (data) => {
   const vehicle = await vehicleRepo.findById(data.vehicleId);
   if (!vehicle) throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.VEHICLE_NOT_FOUND);
   return expenseRepo.create(data);
 };
-
-module.exports = { getAllExpenses, createExpense };

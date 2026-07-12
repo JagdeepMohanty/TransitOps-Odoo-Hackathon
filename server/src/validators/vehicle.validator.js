@@ -1,17 +1,15 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
-const createVehicleSchema = z.object({
+export const createVehicleSchema = z.object({
   registrationNumber: z.string().min(1),
-  vehicleName: z.string().min(1),
-  model: z.string().min(1),
+  name: z.string().min(1),
+  model: z.string().optional(),
   type: z.string().min(1),
   region: z.string().optional(),
   maxLoadCapacity: z.number().positive(),
   odometer: z.number().min(0).default(0),
   acquisitionCost: z.number().positive(),
-  status: z.enum(['Available', 'On Trip', 'In Shop', 'Retired']).default('Available'),
+  status: z.enum(['AVAILABLE', 'ON_TRIP', 'IN_SHOP', 'RETIRED']).default('AVAILABLE'),
 });
 
-const updateVehicleSchema = createVehicleSchema.partial();
-
-module.exports = { createVehicleSchema, updateVehicleSchema };
+export const updateVehicleSchema = createVehicleSchema.partial();

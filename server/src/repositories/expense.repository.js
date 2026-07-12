@@ -1,29 +1,27 @@
-const prisma = require('../config/prisma');
+import prisma from '../config/prisma.js';
 
 const include = { vehicle: true, trip: true };
 
-const findAll = (filters = {}, skip, limit) =>
-  prisma.expense.findMany({ where: filters, include, skip, take: limit, orderBy: { date: 'desc' } });
+export const findAll = (filters = {}, skip, limit) =>
+  prisma.expense.findMany({ where: filters, include, skip, take: limit, orderBy: { expenseDate: 'desc' } });
 
-const countAll = (filters = {}) => prisma.expense.count({ where: filters });
+export const countAll = (filters = {}) => prisma.expense.count({ where: filters });
 
-const findById = (id) => prisma.expense.findUnique({ where: { id }, include });
+export const findById = (id) => prisma.expense.findUnique({ where: { id }, include });
 
-const findByVehicle = (vehicleId) =>
-  prisma.expense.findMany({ where: { vehicleId }, orderBy: { date: 'desc' } });
+export const findByVehicle = (vehicleId) =>
+  prisma.expense.findMany({ where: { vehicleId }, orderBy: { expenseDate: 'desc' } });
 
-const create = (data) => prisma.expense.create({ data, include });
+export const create = (data) => prisma.expense.create({ data, include });
 
-const sumByVehicle = (vehicleId) =>
+export const sumByVehicle = (vehicleId) =>
   prisma.expense.aggregate({
     where: { vehicleId },
     _sum: { amount: true },
   });
 
-const sumMaintenanceByVehicle = (vehicleId) =>
+export const sumMaintenanceByVehicle = (vehicleId) =>
   prisma.expense.aggregate({
-    where: { vehicleId, type: 'Maintenance' },
+    where: { vehicleId, type: 'MAINTENANCE' },
     _sum: { amount: true },
   });
-
-module.exports = { findAll, countAll, findById, findByVehicle, create, sumByVehicle, sumMaintenanceByVehicle };

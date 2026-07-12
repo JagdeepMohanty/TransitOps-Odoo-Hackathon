@@ -1,13 +1,15 @@
-const router = require('express').Router();
-const { getFuelLogs, createFuelLog } = require('../controllers/fuelLog.controller');
-const { authenticate } = require('../middleware/auth.middleware');
-const { authorize } = require('../middleware/role.middleware');
-const { validate } = require('../middleware/validate.middleware');
-const { createFuelLogSchema } = require('../validators/fuelLog.validator');
+import { Router } from 'express';
+import { getFuelLogs, createFuelLog } from '../controllers/fuelLog.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+import { authorize } from '../middleware/role.middleware.js';
+import { validate } from '../middleware/validate.middleware.js';
+import { createFuelLogSchema } from '../validators/fuelLog.validator.js';
+
+const router = Router();
 
 router.use(authenticate);
 
 router.get('/', getFuelLogs);
-router.post('/', authorize('Driver', 'Fleet Manager', 'Admin'), validate(createFuelLogSchema), createFuelLog);
+router.post('/', authorize('DISPATCHER', 'FLEET_MANAGER'), validate(createFuelLogSchema), createFuelLog);
 
-module.exports = router;
+export default router;

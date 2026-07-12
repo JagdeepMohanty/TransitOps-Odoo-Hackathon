@@ -1,23 +1,21 @@
-const prisma = require('../config/prisma');
+import prisma from '../config/prisma.js';
 
 const include = { vehicle: true, trip: true };
 
-const findAll = (filters = {}, skip, limit) =>
-  prisma.fuelLog.findMany({ where: filters, include, skip, take: limit, orderBy: { date: 'desc' } });
+export const findAll = (filters = {}, skip, limit) =>
+  prisma.fuelLog.findMany({ where: filters, include, skip, take: limit, orderBy: { logDate: 'desc' } });
 
-const countAll = (filters = {}) => prisma.fuelLog.count({ where: filters });
+export const countAll = (filters = {}) => prisma.fuelLog.count({ where: filters });
 
-const findById = (id) => prisma.fuelLog.findUnique({ where: { id }, include });
+export const findById = (id) => prisma.fuelLog.findUnique({ where: { id }, include });
 
-const findByVehicle = (vehicleId) =>
-  prisma.fuelLog.findMany({ where: { vehicleId }, orderBy: { date: 'desc' } });
+export const findByVehicle = (vehicleId) =>
+  prisma.fuelLog.findMany({ where: { vehicleId }, orderBy: { logDate: 'desc' } });
 
-const create = (data) => prisma.fuelLog.create({ data, include });
+export const create = (data) => prisma.fuelLog.create({ data, include });
 
-const sumByVehicle = (vehicleId) =>
+export const sumByVehicle = (vehicleId) =>
   prisma.fuelLog.aggregate({
     where: { vehicleId },
     _sum: { liters: true, cost: true },
   });
-
-module.exports = { findAll, countAll, findById, findByVehicle, create, sumByVehicle };

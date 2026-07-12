@@ -1,17 +1,19 @@
-const router = require('express').Router();
-const { getVehicles, getVehicle, getAvailableVehicles, createVehicle, updateVehicle, deleteVehicle } = require('../controllers/vehicle.controller');
-const { authenticate } = require('../middleware/auth.middleware');
-const { authorize } = require('../middleware/role.middleware');
-const { validate } = require('../middleware/validate.middleware');
-const { createVehicleSchema, updateVehicleSchema } = require('../validators/vehicle.validator');
+import { Router } from 'express';
+import { getVehicles, getVehicle, getAvailableVehicles, createVehicle, updateVehicle, deleteVehicle } from '../controllers/vehicle.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+import { authorize } from '../middleware/role.middleware.js';
+import { validate } from '../middleware/validate.middleware.js';
+import { createVehicleSchema, updateVehicleSchema } from '../validators/vehicle.validator.js';
+
+const router = Router();
 
 router.use(authenticate);
 
 router.get('/available', getAvailableVehicles);
 router.get('/', getVehicles);
 router.get('/:id', getVehicle);
-router.post('/', authorize('Fleet Manager', 'Admin'), validate(createVehicleSchema), createVehicle);
-router.put('/:id', authorize('Fleet Manager', 'Admin'), validate(updateVehicleSchema), updateVehicle);
-router.delete('/:id', authorize('Fleet Manager', 'Admin'), deleteVehicle);
+router.post('/', authorize('FLEET_MANAGER'), validate(createVehicleSchema), createVehicle);
+router.put('/:id', authorize('FLEET_MANAGER'), validate(updateVehicleSchema), updateVehicle);
+router.delete('/:id', authorize('FLEET_MANAGER'), deleteVehicle);
 
-module.exports = router;
+export default router;

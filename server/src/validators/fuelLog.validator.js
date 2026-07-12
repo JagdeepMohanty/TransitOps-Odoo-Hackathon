@@ -1,12 +1,10 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
-const createFuelLogSchema = z.object({
+export const createFuelLogSchema = z.object({
   vehicleId: z.number().int().positive(),
   tripId: z.number().int().positive().optional(),
   liters: z.number().positive(),
   cost: z.number().min(0),
-  odometer: z.number().min(0),
-  date: z.string().refine((val) => !isNaN(Date.parse(val)), { message: 'Invalid date' }),
+  odometer: z.number().min(0).optional(),
+  logDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: 'Invalid date' }),
 });
-
-module.exports = { createFuelLogSchema };

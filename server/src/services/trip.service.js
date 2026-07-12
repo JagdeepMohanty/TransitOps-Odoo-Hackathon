@@ -1,12 +1,12 @@
-const tripRepo = require('../repositories/trip.repository');
-const vehicleRepo = require('../repositories/vehicle.repository');
-const driverRepo = require('../repositories/driver.repository');
-const { ApiError } = require('../utils/ApiError');
-const { MESSAGES } = require('../constants/messages');
-const { HTTP_STATUS } = require('../constants/httpStatus');
-const { VEHICLE_STATUS, DRIVER_STATUS, TRIP_STATUS } = require('../constants/statuses');
-const { getPagination, paginatedResponse } = require('../utils/pagination');
-const { isExpired } = require('../utils/date');
+import * as tripRepo from '../repositories/trip.repository.js';
+import * as vehicleRepo from '../repositories/vehicle.repository.js';
+import * as driverRepo from '../repositories/driver.repository.js';
+import { ApiError } from '../utils/ApiError.js';
+import { MESSAGES } from '../constants/messages.js';
+import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { VEHICLE_STATUS, DRIVER_STATUS, TRIP_STATUS } from '../constants/statuses.js';
+import { getPagination, paginatedResponse } from '../utils/pagination.js';
+import { isExpired } from '../utils/date.js';
 
 const validateVehicleForDispatch = (vehicle) => {
   if (vehicle.status === VEHICLE_STATUS.RETIRED)
@@ -22,11 +22,11 @@ const validateDriverForDispatch = (driver) => {
     throw new ApiError(HTTP_STATUS.BAD_REQUEST, MESSAGES.DRIVER_SUSPENDED);
   if (driver.status === DRIVER_STATUS.ON_TRIP)
     throw new ApiError(HTTP_STATUS.BAD_REQUEST, MESSAGES.DRIVER_ON_TRIP);
-  if (isExpired(driver.licenseExpiry))
+  if (isExpired(driver.licenseExpiryDate))
     throw new ApiError(HTTP_STATUS.BAD_REQUEST, MESSAGES.DRIVER_LICENSE_EXPIRED);
 };
 
-const getAllTrips = async (query) => {
+export const getAllTrips = async (query) => {
   const { page, limit, skip } = getPagination(query);
   const filters = {};
   if (query.status) filters.status = query.status;
@@ -40,27 +40,26 @@ const getAllTrips = async (query) => {
   return paginatedResponse(trips, total, page, limit);
 };
 
-const getTripById = async (id) => {
+export const getTripById = async (id) => {
   const trip = await tripRepo.findById(id);
   if (!trip) throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.TRIP_NOT_FOUND);
   return trip;
 };
 
-const createTrip = async (data, userId) => {
+export const createTrip = async (data, userId) => {
   const vehicle = await vehicleRepo.findById(data.vehicleId);
   if (!vehicle) throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.VEHICLE_NOT_FOUND);
 
   const driver = await driverRepo.findById(data.driverId);
   if (!driver) throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.DRIVER_NOT_FOUND);
 
-  // Business Rule: Cargo weight must not exceed vehicle max load capacity
-  if (data.cargoWeight > vehicle.maxLoadCapacity)
+  if (Number(data.cargoWeight) > Number(vehicle.maxLoadCapacity))
     throw new ApiError(HTTP_STATUS.BAD_REQUEST, MESSAGES.TRIP_CARGO_EXCEEDS);
 
   return tripRepo.create({ ...data, status: TRIP_STATUS.DRAFT, createdBy: userId });
 };
 
-const updateTrip = async (id, data) => {
+export const updateTrip = async (id, data) => {
   const trip = await tripRepo.findById(id);
   if (!trip) throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.TRIP_NOT_FOUND);
   if (trip.status !== TRIP_STATUS.DRAFT)
@@ -68,7 +67,7 @@ const updateTrip = async (id, data) => {
   return tripRepo.update(id, data);
 };
 
-const dispatchTrip = async (id) => {
+export const dispatchTrip = async (id) => {
   const trip = await tripRepo.findById(id);
   if (!trip) throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.TRIP_NOT_FOUND);
   if (trip.status !== TRIP_STATUS.DRAFT)
@@ -77,41 +76,37 @@ const dispatchTrip = async (id) => {
   const vehicle = await vehicleRepo.findById(trip.vehicleId);
   const driver = await driverRepo.findById(trip.driverId);
 
-  // Business Rules: validate vehicle and driver before dispatch
   validateVehicleForDispatch(vehicle);
   validateDriverForDispatch(driver);
 
-  // Business Rule: Dispatching sets both vehicle and driver to On Trip
   await Promise.all([
     vehicleRepo.updateStatus(trip.vehicleId, VEHICLE_STATUS.ON_TRIP),
     driverRepo.updateStatus(trip.driverId, DRIVER_STATUS.ON_TRIP),
   ]);
 
-  return tripRepo.update(id, { status: TRIP_STATUS.DISPATCHED });
+  return tripRepo.update(id, { status: TRIP_STATUS.DISPATCHED, dispatchedAt: new Date() });
 };
 
-const completeTrip = async (id, data) => {
+export const completeTrip = async (id, data) => {
   const trip = await tripRepo.findById(id);
   if (!trip) throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.TRIP_NOT_FOUND);
   if (trip.status !== TRIP_STATUS.DISPATCHED)
     throw new ApiError(HTTP_STATUS.BAD_REQUEST, MESSAGES.TRIP_INVALID_STATUS);
 
-  // Business Rule: Completing a trip restores vehicle and driver to Available
   await Promise.all([
     vehicleRepo.updateStatus(trip.vehicleId, VEHICLE_STATUS.AVAILABLE),
     driverRepo.updateStatus(trip.driverId, DRIVER_STATUS.AVAILABLE),
   ]);
 
-  return tripRepo.update(id, { ...data, status: TRIP_STATUS.COMPLETED });
+  return tripRepo.update(id, { ...data, status: TRIP_STATUS.COMPLETED, completedAt: new Date() });
 };
 
-const cancelTrip = async (id) => {
+export const cancelTrip = async (id) => {
   const trip = await tripRepo.findById(id);
   if (!trip) throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.TRIP_NOT_FOUND);
   if (![TRIP_STATUS.DRAFT, TRIP_STATUS.DISPATCHED].includes(trip.status))
     throw new ApiError(HTTP_STATUS.BAD_REQUEST, MESSAGES.TRIP_INVALID_STATUS);
 
-  // Business Rule: Cancelling a dispatched trip restores vehicle and driver to Available
   if (trip.status === TRIP_STATUS.DISPATCHED) {
     await Promise.all([
       vehicleRepo.updateStatus(trip.vehicleId, VEHICLE_STATUS.AVAILABLE),
@@ -119,7 +114,5 @@ const cancelTrip = async (id) => {
     ]);
   }
 
-  return tripRepo.update(id, { status: TRIP_STATUS.CANCELLED });
+  return tripRepo.update(id, { status: TRIP_STATUS.CANCELLED, cancelledAt: new Date() });
 };
-
-module.exports = { getAllTrips, getTripById, createTrip, updateTrip, dispatchTrip, completeTrip, cancelTrip };

@@ -1,13 +1,15 @@
-const router = require('express').Router();
-const { getExpenses, createExpense } = require('../controllers/expense.controller');
-const { authenticate } = require('../middleware/auth.middleware');
-const { authorize } = require('../middleware/role.middleware');
-const { validate } = require('../middleware/validate.middleware');
-const { createExpenseSchema } = require('../validators/expense.validator');
+import { Router } from 'express';
+import { getExpenses, createExpense } from '../controllers/expense.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+import { authorize } from '../middleware/role.middleware.js';
+import { validate } from '../middleware/validate.middleware.js';
+import { createExpenseSchema } from '../validators/expense.validator.js';
+
+const router = Router();
 
 router.use(authenticate);
 
 router.get('/', getExpenses);
-router.post('/', authorize('Driver', 'Fleet Manager', 'Financial Analyst', 'Admin'), validate(createExpenseSchema), createExpense);
+router.post('/', authorize('DISPATCHER', 'FLEET_MANAGER', 'FINANCIAL_ANALYST'), validate(createExpenseSchema), createExpense);
 
-module.exports = router;
+export default router;

@@ -1,11 +1,13 @@
-const router = require('express').Router();
-const { getReports, exportReportsCsv } = require('../controllers/report.controller');
-const { authenticate } = require('../middleware/auth.middleware');
-const { authorize } = require('../middleware/role.middleware');
+import { Router } from 'express';
+import { getReports, exportReportsCsv } from '../controllers/report.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+import { authorize } from '../middleware/role.middleware.js';
+
+const router = Router();
 
 router.use(authenticate);
 
-router.get('/', authorize('Fleet Manager', 'Financial Analyst', 'Admin'), getReports);
-router.get('/export/csv', authorize('Fleet Manager', 'Financial Analyst', 'Admin'), exportReportsCsv);
+router.get('/', authorize('FLEET_MANAGER', 'FINANCIAL_ANALYST'), getReports);
+router.get('/export/csv', authorize('FLEET_MANAGER', 'FINANCIAL_ANALYST'), exportReportsCsv);
 
-module.exports = router;
+export default router;

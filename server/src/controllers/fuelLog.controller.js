@@ -1,17 +1,15 @@
-const fuelLogService = require('../services/fuelLog.service');
-const { asyncHandler } = require('../utils/asyncHandler');
-const { ApiResponse } = require('../utils/ApiResponse');
-const { HTTP_STATUS } = require('../constants/httpStatus');
-const { MESSAGES } = require('../constants/messages');
+import * as fuelLogService from '../services/fuelLog.service.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
+import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { MESSAGES } from '../constants/messages.js';
 
-const getFuelLogs = asyncHandler(async (req, res) => {
+export const getFuelLogs = asyncHandler(async (req, res) => {
   const result = await fuelLogService.getAllFuelLogs(req.query);
-  res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, 'Fuel logs fetched.', result));
+  return new ApiResponse(HTTP_STATUS.OK, 'Fuel logs fetched.', result).send(res);
 });
 
-const createFuelLog = asyncHandler(async (req, res) => {
+export const createFuelLog = asyncHandler(async (req, res) => {
   const log = await fuelLogService.createFuelLog(req.body);
-  res.status(HTTP_STATUS.CREATED).json(new ApiResponse(HTTP_STATUS.CREATED, MESSAGES.FUEL_LOG_CREATED, log));
+  return new ApiResponse(HTTP_STATUS.CREATED, MESSAGES.FUEL_LOG_CREATED, log).send(res);
 });
-
-module.exports = { getFuelLogs, createFuelLog };

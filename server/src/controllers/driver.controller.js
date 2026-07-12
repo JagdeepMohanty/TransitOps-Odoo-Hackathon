@@ -1,37 +1,35 @@
-const driverService = require('../services/driver.service');
-const { asyncHandler } = require('../utils/asyncHandler');
-const { ApiResponse } = require('../utils/ApiResponse');
-const { HTTP_STATUS } = require('../constants/httpStatus');
-const { MESSAGES } = require('../constants/messages');
+import * as driverService from '../services/driver.service.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
+import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { MESSAGES } from '../constants/messages.js';
 
-const getDrivers = asyncHandler(async (req, res) => {
+export const getDrivers = asyncHandler(async (req, res) => {
   const result = await driverService.getAllDrivers(req.query);
-  res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, 'Drivers fetched.', result));
+  return new ApiResponse(HTTP_STATUS.OK, 'Drivers fetched.', result).send(res);
 });
 
-const getDriver = asyncHandler(async (req, res) => {
+export const getDriver = asyncHandler(async (req, res) => {
   const driver = await driverService.getDriverById(parseInt(req.params.id));
-  res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, 'Driver fetched.', driver));
+  return new ApiResponse(HTTP_STATUS.OK, 'Driver fetched.', driver).send(res);
 });
 
-const getAvailableDrivers = asyncHandler(async (req, res) => {
+export const getAvailableDrivers = asyncHandler(async (req, res) => {
   const drivers = await driverService.getAvailableDrivers();
-  res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, 'Available drivers fetched.', drivers));
+  return new ApiResponse(HTTP_STATUS.OK, 'Available drivers fetched.', drivers).send(res);
 });
 
-const createDriver = asyncHandler(async (req, res) => {
+export const createDriver = asyncHandler(async (req, res) => {
   const driver = await driverService.createDriver(req.body);
-  res.status(HTTP_STATUS.CREATED).json(new ApiResponse(HTTP_STATUS.CREATED, MESSAGES.DRIVER_CREATED, driver));
+  return new ApiResponse(HTTP_STATUS.CREATED, MESSAGES.DRIVER_CREATED, driver).send(res);
 });
 
-const updateDriver = asyncHandler(async (req, res) => {
+export const updateDriver = asyncHandler(async (req, res) => {
   const driver = await driverService.updateDriver(parseInt(req.params.id), req.body);
-  res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, MESSAGES.DRIVER_UPDATED, driver));
+  return new ApiResponse(HTTP_STATUS.OK, MESSAGES.DRIVER_UPDATED, driver).send(res);
 });
 
-const deleteDriver = asyncHandler(async (req, res) => {
+export const deleteDriver = asyncHandler(async (req, res) => {
   await driverService.deleteDriver(parseInt(req.params.id));
-  res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, MESSAGES.DRIVER_DELETED));
+  return new ApiResponse(HTTP_STATUS.OK, MESSAGES.DRIVER_DELETED).send(res);
 });
-
-module.exports = { getDrivers, getDriver, getAvailableDrivers, createDriver, updateDriver, deleteDriver };

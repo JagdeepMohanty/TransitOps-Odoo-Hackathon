@@ -1,8 +1,6 @@
-const { Parser } = require('json2csv');
+import { Parser } from 'json2csv';
 
-const exportToCsv = (fields, data) => {
+export const exportToCsv = (fields, data) => {
   const parser = new Parser({ fields });
   return parser.parse(data);
 };
-
-module.exports = { exportToCsv };

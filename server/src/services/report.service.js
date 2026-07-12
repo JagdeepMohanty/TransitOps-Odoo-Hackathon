@@ -1,42 +1,41 @@
-const prisma = require('../config/prisma');
-const vehicleRepo = require('../repositories/vehicle.repository');
-const fuelLogRepo = require('../repositories/fuelLog.repository');
-const expenseRepo = require('../repositories/expense.repository');
-const { calcFuelEfficiency, calcOperationalCost, calcVehicleROI, calcFleetUtilization } = require('../utils/calculations');
-const { exportToCsv } = require('../utils/csv');
+import prisma from '../config/prisma.js';
+import * as vehicleRepo from '../repositories/vehicle.repository.js';
+import * as fuelLogRepo from '../repositories/fuelLog.repository.js';
+import * as expenseRepo from '../repositories/expense.repository.js';
+import { calcFuelEfficiency, calcOperationalCost, calcVehicleROI, calcFleetUtilization } from '../utils/calculations.js';
+import { exportToCsv } from '../utils/csv.js';
 
-const getReports = async (query) => {
+export const getReports = async (query) => {
   const filters = {};
   if (query.vehicleId) filters.id = parseInt(query.vehicleId);
 
   const vehicles = await prisma.vehicle.findMany({
     where: filters,
     include: {
-      trips: { where: { status: 'Completed' } },
+      trips: { where: { status: 'COMPLETED' } },
       fuelLogs: true,
       maintenanceLogs: true,
     },
   });
 
   const totalVehicles = await vehicleRepo.countAll({});
-  const onTripCount = await vehicleRepo.countAll({ status: 'On Trip' });
+  const onTripCount = await vehicleRepo.countAll({ status: 'ON_TRIP' });
 
   const reports = await Promise.all(
     vehicles.map(async (vehicle) => {
       const fuelSum = await fuelLogRepo.sumByVehicle(vehicle.id);
-      const expenseSum = await expenseRepo.sumByVehicle(vehicle.id);
       const maintenanceSum = await expenseRepo.sumMaintenanceByVehicle(vehicle.id);
 
-      const totalLiters = fuelSum._sum.liters || 0;
-      const totalFuelCost = fuelSum._sum.cost || 0;
-      const totalMaintenanceCost = maintenanceSum._sum.amount || 0;
-      const totalDistance = vehicle.trips.reduce((sum, t) => sum + (t.finalDistance || t.plannedDistance || 0), 0);
-      const totalRevenue = vehicle.trips.reduce((sum, t) => sum + (t.revenue || 0), 0);
+      const totalLiters = Number(fuelSum._sum.liters) || 0;
+      const totalFuelCost = Number(fuelSum._sum.cost) || 0;
+      const totalMaintenanceCost = Number(maintenanceSum._sum.amount) || 0;
+      const totalDistance = vehicle.trips.reduce((sum, t) => sum + Number(t.actualDistance || t.plannedDistance || 0), 0);
+      const totalRevenue = vehicle.trips.reduce((sum, t) => sum + Number(t.revenue || 0), 0);
 
       return {
         vehicleId: vehicle.id,
         registrationNumber: vehicle.registrationNumber,
-        vehicleName: vehicle.vehicleName,
+        vehicleName: vehicle.name,
         type: vehicle.type,
         status: vehicle.status,
         totalTrips: vehicle.trips.length,
@@ -47,7 +46,7 @@ const getReports = async (query) => {
         operationalCost: calcOperationalCost(totalFuelCost, totalMaintenanceCost),
         fuelEfficiency: calcFuelEfficiency(totalDistance, totalLiters),
         totalRevenue,
-        roi: calcVehicleROI(totalRevenue, totalMaintenanceCost, totalFuelCost, vehicle.acquisitionCost),
+        roi: calcVehicleROI(totalRevenue, totalMaintenanceCost, totalFuelCost, Number(vehicle.acquisitionCost)),
       };
     })
   );
@@ -58,7 +57,7 @@ const getReports = async (query) => {
   };
 };
 
-const exportReportsCsv = async (query) => {
+export const exportReportsCsv = async (query) => {
   const { vehicles } = await getReports(query);
   const fields = [
     'vehicleId', 'registrationNumber', 'vehicleName', 'type', 'status',
@@ -67,5 +66,3 @@ const exportReportsCsv = async (query) => {
   ];
   return exportToCsv(fields, vehicles);
 };
-
-module.exports = { getReports, exportReportsCsv };

@@ -1,42 +1,40 @@
-const tripService = require('../services/trip.service');
-const { asyncHandler } = require('../utils/asyncHandler');
-const { ApiResponse } = require('../utils/ApiResponse');
-const { HTTP_STATUS } = require('../constants/httpStatus');
-const { MESSAGES } = require('../constants/messages');
+import * as tripService from '../services/trip.service.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
+import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { MESSAGES } from '../constants/messages.js';
 
-const getTrips = asyncHandler(async (req, res) => {
+export const getTrips = asyncHandler(async (req, res) => {
   const result = await tripService.getAllTrips(req.query);
-  res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, 'Trips fetched.', result));
+  return new ApiResponse(HTTP_STATUS.OK, 'Trips fetched.', result).send(res);
 });
 
-const getTrip = asyncHandler(async (req, res) => {
+export const getTrip = asyncHandler(async (req, res) => {
   const trip = await tripService.getTripById(parseInt(req.params.id));
-  res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, 'Trip fetched.', trip));
+  return new ApiResponse(HTTP_STATUS.OK, 'Trip fetched.', trip).send(res);
 });
 
-const createTrip = asyncHandler(async (req, res) => {
+export const createTrip = asyncHandler(async (req, res) => {
   const trip = await tripService.createTrip(req.body, req.user.id);
-  res.status(HTTP_STATUS.CREATED).json(new ApiResponse(HTTP_STATUS.CREATED, MESSAGES.TRIP_CREATED, trip));
+  return new ApiResponse(HTTP_STATUS.CREATED, MESSAGES.TRIP_CREATED, trip).send(res);
 });
 
-const updateTrip = asyncHandler(async (req, res) => {
+export const updateTrip = asyncHandler(async (req, res) => {
   const trip = await tripService.updateTrip(parseInt(req.params.id), req.body);
-  res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, MESSAGES.TRIP_UPDATED, trip));
+  return new ApiResponse(HTTP_STATUS.OK, MESSAGES.TRIP_UPDATED, trip).send(res);
 });
 
-const dispatchTrip = asyncHandler(async (req, res) => {
+export const dispatchTrip = asyncHandler(async (req, res) => {
   const trip = await tripService.dispatchTrip(parseInt(req.params.id));
-  res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, MESSAGES.TRIP_DISPATCHED, trip));
+  return new ApiResponse(HTTP_STATUS.OK, MESSAGES.TRIP_DISPATCHED, trip).send(res);
 });
 
-const completeTrip = asyncHandler(async (req, res) => {
+export const completeTrip = asyncHandler(async (req, res) => {
   const trip = await tripService.completeTrip(parseInt(req.params.id), req.body);
-  res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, MESSAGES.TRIP_COMPLETED, trip));
+  return new ApiResponse(HTTP_STATUS.OK, MESSAGES.TRIP_COMPLETED, trip).send(res);
 });
 
-const cancelTrip = asyncHandler(async (req, res) => {
+export const cancelTrip = asyncHandler(async (req, res) => {
   const trip = await tripService.cancelTrip(parseInt(req.params.id));
-  res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, MESSAGES.TRIP_CANCELLED, trip));
+  return new ApiResponse(HTTP_STATUS.OK, MESSAGES.TRIP_CANCELLED, trip).send(res);
 });
-
-module.exports = { getTrips, getTrip, createTrip, updateTrip, dispatchTrip, completeTrip, cancelTrip };

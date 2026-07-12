@@ -1,6 +1,6 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
-const createTripSchema = z.object({
+export const createTripSchema = z.object({
   source: z.string().min(1),
   destination: z.string().min(1),
   vehicleId: z.number().int().positive(),
@@ -10,13 +10,10 @@ const createTripSchema = z.object({
   revenue: z.number().min(0).default(0),
 });
 
-const completeTripSchema = z.object({
-  finalDistance: z.number().positive(),
+export const completeTripSchema = z.object({
+  actualDistance: z.number().positive(),
   fuelConsumed: z.number().positive(),
-  fuelCost: z.number().min(0),
   revenue: z.number().min(0).optional(),
 });
 
-const updateTripSchema = createTripSchema.partial();
-
-module.exports = { createTripSchema, updateTripSchema, completeTripSchema };
+export const updateTripSchema = createTripSchema.partial();
