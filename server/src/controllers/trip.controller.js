@@ -6,35 +6,40 @@ import { MESSAGES } from '../constants/messages.js';
 
 export const getTrips = asyncHandler(async (req, res) => {
   const result = await tripService.getAllTrips(req.query);
-  return new ApiResponse(HTTP_STATUS.OK, 'Trips fetched.', result).send(res);
+  return new ApiResponse(HTTP_STATUS.OK, 'Trips retrieved successfully.', result).send(res);
 });
 
 export const getTrip = asyncHandler(async (req, res) => {
-  const trip = await tripService.getTripById(parseInt(req.params.id));
-  return new ApiResponse(HTTP_STATUS.OK, 'Trip fetched.', trip).send(res);
+  const trip = await tripService.getTripById(req.params.id);
+  return new ApiResponse(HTTP_STATUS.OK, 'Trip retrieved successfully.', trip).send(res);
 });
 
 export const createTrip = asyncHandler(async (req, res) => {
-  const trip = await tripService.createTrip(req.body, req.user.id);
+  const trip = await tripService.createTrip(req.body);
   return new ApiResponse(HTTP_STATUS.CREATED, MESSAGES.TRIP_CREATED, trip).send(res);
 });
 
 export const updateTrip = asyncHandler(async (req, res) => {
-  const trip = await tripService.updateTrip(parseInt(req.params.id), req.body);
+  const trip = await tripService.updateTrip(req.params.id, req.body);
   return new ApiResponse(HTTP_STATUS.OK, MESSAGES.TRIP_UPDATED, trip).send(res);
 });
 
 export const dispatchTrip = asyncHandler(async (req, res) => {
-  const trip = await tripService.dispatchTrip(parseInt(req.params.id));
+  const trip = await tripService.dispatchTrip(req.params.id);
   return new ApiResponse(HTTP_STATUS.OK, MESSAGES.TRIP_DISPATCHED, trip).send(res);
 });
 
 export const completeTrip = asyncHandler(async (req, res) => {
-  const trip = await tripService.completeTrip(parseInt(req.params.id), req.body);
+  const trip = await tripService.completeTrip(req.params.id, req.body);
   return new ApiResponse(HTTP_STATUS.OK, MESSAGES.TRIP_COMPLETED, trip).send(res);
 });
 
 export const cancelTrip = asyncHandler(async (req, res) => {
-  const trip = await tripService.cancelTrip(parseInt(req.params.id));
+  const trip = await tripService.cancelTrip(req.params.id);
   return new ApiResponse(HTTP_STATUS.OK, MESSAGES.TRIP_CANCELLED, trip).send(res);
+});
+
+export const deleteTrip = asyncHandler(async (req, res) => {
+  await tripService.deleteTrip(req.params.id);
+  return new ApiResponse(HTTP_STATUS.OK, MESSAGES.TRIP_DELETED, null).send(res);
 });

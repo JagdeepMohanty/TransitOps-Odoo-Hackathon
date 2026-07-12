@@ -14,8 +14,8 @@ export const login = async (email, password) => {
 
   const token = generateJWT({
     userId: user.id,
-    email:  user.email,
-    role:   user.role?.name ?? null,
+    email: user.email,
+    role: user.role?.name ?? null,
   });
 
   const { passwordHash: _omit, ...safeUser } = user;

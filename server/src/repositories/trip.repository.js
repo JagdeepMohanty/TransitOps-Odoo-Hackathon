@@ -1,11 +1,33 @@
 import prisma from '../config/prisma.js';
 
-const include = { vehicle: true, driver: true };
+// Lean include — only the fields the frontend actually needs from related records
+const include = {
+  vehicle: {
+    select: {
+      id: true,
+      registrationNumber: true,
+      name: true,
+      type: true,
+      maxLoadCapacity: true,
+      status: true,
+    },
+  },
+  driver: {
+    select: {
+      id: true,
+      name: true,
+      licenseNumber: true,
+      licenseCategory: true,
+      licenseExpiryDate: true,
+      status: true,
+    },
+  },
+};
 
-export const findAll = (filters = {}, skip, limit) =>
-  prisma.trip.findMany({ where: filters, include, skip, take: limit, orderBy: { createdAt: 'desc' } });
+export const findAll = (where = {}, skip, limit, orderBy = { createdAt: 'desc' }) =>
+  prisma.trip.findMany({ where, include, skip, take: limit, orderBy });
 
-export const countAll = (filters = {}) => prisma.trip.count({ where: filters });
+export const countAll = (where = {}) => prisma.trip.count({ where });
 
 export const findById = (id) => prisma.trip.findUnique({ where: { id }, include });
 

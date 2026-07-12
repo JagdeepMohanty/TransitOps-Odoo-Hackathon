@@ -15,6 +15,5 @@ export const me = asyncHandler(async (req, res) => {
 });
 
 export const logout = asyncHandler(async (req, res) => {
-  // JWT is stateless — client discards the token
   return new ApiResponse(HTTP_STATUS.OK, MESSAGES.LOGOUT_SUCCESS, null).send(res);
 });

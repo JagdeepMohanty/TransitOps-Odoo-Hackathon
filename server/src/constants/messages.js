@@ -30,6 +30,7 @@ export const MESSAGES = {
   TRIP_COMPLETED: 'Trip completed successfully.',
   TRIP_CANCELLED: 'Trip cancelled successfully.',
   TRIP_INVALID_STATUS: 'Invalid trip status for this operation.',
+  TRIP_DELETED: 'Trip deleted successfully.',
 
   // Maintenance
   MAINTENANCE_NOT_FOUND: 'Maintenance log not found.',
@@ -45,6 +46,15 @@ export const MESSAGES = {
   // Expense
   EXPENSE_NOT_FOUND: 'Expense not found.',
   EXPENSE_CREATED: 'Expense recorded successfully.',
+
+  // Auth
+  LOGIN_SUCCESS: 'Login successful',
+  LOGOUT_SUCCESS: 'Logged out successfully',
+  INVALID_CREDENTIALS: 'Invalid email or password',
+  UNAUTHORIZED: 'Authentication required',
+  FORBIDDEN: 'You do not have permission to perform this action',
+  TOKEN_EXPIRED: 'Session expired, please log in again',
+  USER_NOT_FOUND: 'User no longer exists',
 
   // General
   INTERNAL_ERROR: 'Internal server error.',

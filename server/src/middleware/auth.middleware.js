@@ -22,6 +22,7 @@ export const authenticate = async (req, res, next) => {
       throw new ApiError(HTTP_STATUS.UNAUTHORIZED, message);
     }
 
+    // Confirm the user still exists in the database
     const exists = await userExists(payload.userId);
     if (!exists) {
       throw new ApiError(HTTP_STATUS.UNAUTHORIZED, 'User no longer exists');
