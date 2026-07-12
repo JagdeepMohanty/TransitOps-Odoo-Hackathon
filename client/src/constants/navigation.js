@@ -11,6 +11,7 @@ import {
   UserCircle,
   LogOut,
   Zap,
+  Settings,
 } from 'lucide-react';
 
 // ─── Main navigation sections ─────────────────────────────────
@@ -46,7 +47,8 @@ export const NAV_SECTIONS = [
     id:    'analytics',
     label: 'Analytics',
     items: [
-      { id: 'reports', to: '/reports', icon: BarChart3, label: 'Reports' },
+      { id: 'reports',  to: '/reports',  icon: BarChart3, label: 'Reports'  },
+      { id: 'settings', to: '/settings', icon: Settings,  label: 'Settings' },
     ],
   },
 ];
