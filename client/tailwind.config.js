@@ -128,12 +128,13 @@ export default {
 
       // ── Animations ────────────────────────────────────────────
       animation: {
-        'fade-in':   'fadeIn 0.2s ease-in-out',
-        'fade-up':   'fadeUp 0.25s ease-out',
-        'slide-in':  'slideIn 0.25s ease-out',
-        'slide-out': 'slideOut 0.2s ease-in',
-        'spin-slow': 'spin 2s linear infinite',
-        'pulse-slow':'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
+        'fade-in':        'fadeIn 0.2s ease-in-out',
+        'fade-up':        'fadeUp 0.25s ease-out',
+        'slide-in':       'slideIn 0.25s ease-out',
+        'slide-out':      'slideOut 0.2s ease-in',
+        'slide-in-right': 'slideInRight 0.3s ease-out',
+        'spin-slow':      'spin 2s linear infinite',
+        'pulse-slow':     'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
       },
       keyframes: {
         fadeIn: {
@@ -151,6 +152,10 @@ export default {
         slideOut: {
           '0%':   { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-100%)' },
+        },
+        slideInRight: {
+          '0%':   { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)',    opacity: '1' },
         },
       },
     },

@@ -22,14 +22,16 @@ const AddVehiclePage  = lazy(() => import('@pages/vehicles/AddVehiclePage'));
 const EditVehiclePage = lazy(() => import('@pages/vehicles/EditVehiclePage'));
 
 // ── Drivers ────────────────────────────────────────────────────
-const DriversPage    = lazy(() => import('@pages/drivers/DriversPage'));
-const AddDriverPage  = lazy(() => import('@pages/drivers/AddDriverPage'));
-const EditDriverPage = lazy(() => import('@pages/drivers/EditDriverPage'));
+const DriversPage      = lazy(() => import('@pages/drivers/DriversPage'));
+const DriverSafetyPage = lazy(() => import('@pages/drivers/DriverSafetyPage'));
+const AddDriverPage    = lazy(() => import('@pages/drivers/AddDriverPage'));
+const EditDriverPage   = lazy(() => import('@pages/drivers/EditDriverPage'));
 
 // ── Trips ──────────────────────────────────────────────────────
-const TripsPage       = lazy(() => import('@pages/trips/TripsPage'));
-const CreateTripPage  = lazy(() => import('@pages/trips/CreateTripPage'));
-const TripDetailsPage = lazy(() => import('@pages/trips/TripDetailsPage'));
+const TripsPage          = lazy(() => import('@pages/trips/TripsPage'));
+const CreateTripPage     = lazy(() => import('@pages/trips/CreateTripPage'));
+const TripDetailsPage    = lazy(() => import('@pages/trips/TripDetailsPage'));
+const TripDispatcherPage = lazy(() => import('@pages/trips/TripDispatcherPage'));
 
 // ── Finance ────────────────────────────────────────────────────
 const ExpensesPage = lazy(() => import('@pages/finance/ExpensesPage'));
@@ -97,13 +99,15 @@ export default function AppRoutes() {
 
             {/* Drivers */}
             <Route path="/drivers"           element={<Suspense fallback={<PageLoader />}><DriversPage /></Suspense>} />
+            <Route path="/drivers/safety"    element={<Suspense fallback={<PageLoader />}><DriverSafetyPage /></Suspense>} />
             <Route path="/drivers/add"       element={<Suspense fallback={<PageLoader />}><AddDriverPage /></Suspense>} />
             <Route path="/drivers/:id/edit"  element={<Suspense fallback={<PageLoader />}><EditDriverPage /></Suspense>} />
 
             {/* Trips */}
-            <Route path="/trips"             element={<Suspense fallback={<PageLoader />}><TripsPage /></Suspense>} />
-            <Route path="/trips/create"      element={<Suspense fallback={<PageLoader />}><CreateTripPage /></Suspense>} />
-            <Route path="/trips/:id"         element={<Suspense fallback={<PageLoader />}><TripDetailsPage /></Suspense>} />
+            <Route path="/trips"                element={<Suspense fallback={<PageLoader />}><TripsPage /></Suspense>} />
+            <Route path="/trips/dispatcher"     element={<Suspense fallback={<PageLoader />}><TripDispatcherPage /></Suspense>} />
+            <Route path="/trips/create"         element={<Suspense fallback={<PageLoader />}><CreateTripPage /></Suspense>} />
+            <Route path="/trips/:id"            element={<Suspense fallback={<PageLoader />}><TripDetailsPage /></Suspense>} />
 
             {/* Finance */}
             <Route path="/finance/expenses"  element={<Suspense fallback={<PageLoader />}><ExpensesPage /></Suspense>} />

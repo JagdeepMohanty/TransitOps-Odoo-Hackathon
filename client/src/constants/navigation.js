@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Truck,
   Users,
+  ShieldCheck,
   Route,
   Wrench,
   Fuel,
@@ -9,6 +10,7 @@ import {
   BarChart3,
   UserCircle,
   LogOut,
+  Zap,
 } from 'lucide-react';
 
 // ─── Main navigation sections ─────────────────────────────────
@@ -24,10 +26,12 @@ export const NAV_SECTIONS = [
     id:    'fleet',
     label: 'Fleet',
     items: [
-      { id: 'vehicles',    to: '/vehicles',    icon: Truck,  label: 'Vehicles'     },
-      { id: 'drivers',     to: '/drivers',     icon: Users,  label: 'Drivers'      },
-      { id: 'trips',       to: '/trips',       icon: Route,  label: 'Trips'        },
-      { id: 'maintenance', to: '/maintenance', icon: Wrench, label: 'Maintenance'  },
+      { id: 'vehicles',       to: '/vehicles',        icon: Truck,        label: 'Vehicles'          },
+      { id: 'drivers',        to: '/drivers',         icon: Users,        label: 'Drivers'           },
+      { id: 'driver-safety',  to: '/drivers/safety',  icon: ShieldCheck,  label: 'Driver Safety'     },
+      { id: 'trips',          to: '/trips',            icon: Route,  label: 'Trips'            },
+      { id: 'dispatcher',     to: '/trips/dispatcher', icon: Zap,    label: 'Trip Dispatcher'  },
+      { id: 'maintenance',    to: '/maintenance',      icon: Wrench, label: 'Maintenance'      },
     ],
   },
   {
