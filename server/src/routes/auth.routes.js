@@ -1,14 +1,13 @@
 import { Router } from 'express';
-import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { login, me, logout } from '../controllers/auth.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+import { validate } from '../middleware/validate.middleware.js';
+import { loginSchema } from '../validators/auth.validator.js';
 
 const router = Router();
 
-router.all('*', (req, res) => {
-  res.status(HTTP_STATUS.NOT_IMPLEMENTED).json({
-    success: false,
-    message: 'Auth module will be implemented in the next phase',
-    errors: [],
-  });
-});
+router.post('/login',  validate(loginSchema), login);
+router.get('/me',      authenticate, me);
+router.post('/logout', authenticate, logout);
 
 export default router;
