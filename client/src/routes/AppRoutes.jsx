@@ -47,6 +47,9 @@ const ReportsPage = lazy(() => import('@pages/reports/ReportsPage'));
 // ── Profile ────────────────────────────────────────────────────
 const ProfilePage = lazy(() => import('@pages/profile/ProfilePage'));
 
+// ── Settings ───────────────────────────────────────────────────
+const SettingsPage = lazy(() => import('@pages/settings/SettingsPage'));
+
 // ── 404 ────────────────────────────────────────────────────────
 const NotFoundPage = lazy(() => import('@pages/NotFoundPage'));
 
@@ -123,6 +126,9 @@ export default function AppRoutes() {
 
             {/* Profile */}
             <Route path="/profile"           element={<Suspense fallback={<PageLoader />}><ProfilePage /></Suspense>} />
+
+            {/* Settings */}
+            <Route path="/settings"          element={<Suspense fallback={<PageLoader />}><SettingsPage /></Suspense>} />
 
           </Route>
         </Route>
