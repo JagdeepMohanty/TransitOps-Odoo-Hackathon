@@ -38,7 +38,8 @@ const ExpensesPage = lazy(() => import('@pages/finance/ExpensesPage'));
 const FuelLogsPage = lazy(() => import('@pages/finance/FuelLogsPage'));
 
 // ── Maintenance ────────────────────────────────────────────────
-const MaintenancePage = lazy(() => import('@pages/maintenance/MaintenancePage'));
+const MaintenancePage      = lazy(() => import('@pages/maintenance/MaintenancePage'));
+const FleetMaintenancePage = lazy(() => import('@pages/maintenance/FleetMaintenancePage'));
 
 // ── Reports ────────────────────────────────────────────────────
 const ReportsPage = lazy(() => import('@pages/reports/ReportsPage'));
@@ -114,7 +115,8 @@ export default function AppRoutes() {
             <Route path="/finance/fuel"      element={<Suspense fallback={<PageLoader />}><FuelLogsPage /></Suspense>} />
 
             {/* Maintenance */}
-            <Route path="/maintenance"       element={<Suspense fallback={<PageLoader />}><MaintenancePage /></Suspense>} />
+            <Route path="/maintenance"       element={<Suspense fallback={<PageLoader />}><FleetMaintenancePage /></Suspense>} />
+            <Route path="/maintenance/legacy" element={<Suspense fallback={<PageLoader />}><MaintenancePage /></Suspense>} />
 
             {/* Reports */}
             <Route path="/reports"           element={<Suspense fallback={<PageLoader />}><ReportsPage /></Suspense>} />
