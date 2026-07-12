@@ -1,119 +1,232 @@
-import { useState, useMemo } from 'react'
-import { Plus, Download, Eye, Wrench, Truck, Calendar, DollarSign, User, FileText } from 'lucide-react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { Plus, Wrench, Truck, Calendar, RefreshCw, CheckCircle, FileText } from 'lucide-react'
 
-import PageHeader     from '@/components/layout/PageHeader'
-import Breadcrumb     from '@/components/common/Breadcrumb'
-import Button         from '@/components/common/Button'
-import SearchBar      from '@/components/common/SearchBar'
-import Table          from '@/components/common/Table'
-import StatusBadge    from '@/components/common/StatusBadge'
-import Modal          from '@/components/common/Modal'
-import Loader         from '@/components/common/Loader'
-import Card           from '@/components/common/Card'
-import FilterTabBar   from '@/components/common/FilterTabBar'
-import StatsGrid      from '@/components/common/StatsGrid'
-import BulkActionBar  from '@/components/common/BulkActionBar'
-import PaginationBar  from '@/components/common/PaginationBar'
-import DetailInfoGrid from '@/components/common/DetailInfoGrid'
+import PageHeader    from '@/components/layout/PageHeader'
+import Breadcrumb    from '@/components/common/Breadcrumb'
+import Button        from '@/components/common/Button'
+import SearchBar     from '@/components/common/SearchBar'
+import Table         from '@/components/common/Table'
+import StatusBadge   from '@/components/common/StatusBadge'
+import Modal         from '@/components/common/Modal'
+import Loader        from '@/components/common/Loader'
+import Card          from '@/components/common/Card'
+import FilterTabBar  from '@/components/common/FilterTabBar'
+import StatsGrid     from '@/components/common/StatsGrid'
+import PaginationBar from '@/components/common/PaginationBar'
 import { formatDate, formatCurrency } from '@/utils'
+import { maintenanceApi } from '@/api/maintenance.api'
+import { vehiclesApi    } from '@/api/vehicles.api'
 
-const ALL_RECORDS = [
-  { id: 'M-001', vehicle: 'LG-001-AA', make: 'Toyota Coaster',    type: 'Oil Change',          priority: 'Low',      cost: 120,  laborCost: 40,   partsCost: 80,   technician: 'Emeka Repairs',    date: '2024-09-05', completedDate: '2024-09-05', notes: 'Routine 5,000 km service.',           status: 'closed'      },
-  { id: 'M-002', vehicle: 'AB-002-BB', make: 'Mercedes Sprinter',  type: 'Brake Replacement',   priority: 'High',     cost: 850,  laborCost: 200,  partsCost: 650,  technician: 'AutoFix Ltd',      date: '2024-09-08', completedDate: null,          notes: 'Front and rear brake pads replaced.', status: 'in_progress' },
-  { id: 'M-003', vehicle: 'KN-003-CC', make: 'Ford Transit',       type: 'Tyre Rotation',       priority: 'Medium',   cost: 200,  laborCost: 80,   partsCost: 120,  technician: 'Kano Auto Works',  date: '2024-09-12', completedDate: null,          notes: 'All four tyres rotated and balanced.', status: 'open'       },
-  { id: 'M-004', vehicle: 'LG-004-DD', make: 'Iveco Daily',        type: 'Engine Overhaul',     priority: 'Critical', cost: 3200, laborCost: 1200, partsCost: 2000, technician: 'ProEngine NG',     date: '2024-09-01', completedDate: '2024-09-07', notes: 'Full engine rebuild after failure.',  status: 'closed'      },
-  { id: 'M-005', vehicle: 'PH-005-EE', make: 'Toyota Hiace',       type: 'AC Repair',           priority: 'Medium',   cost: 450,  laborCost: 150,  partsCost: 300,  technician: 'CoolAir Services', date: '2024-09-10', completedDate: null,          notes: 'Compressor replaced.',               status: 'in_progress' },
-  { id: 'M-006', vehicle: 'AB-006-FF', make: 'Mitsubishi Rosa',    type: 'Windshield Replace',  priority: 'High',     cost: 680,  laborCost: 100,  partsCost: 580,  technician: 'GlassPro NG',      date: '2024-09-13', completedDate: null,          notes: 'Cracked windshield from road debris.', status: 'open'       },
-  { id: 'M-007', vehicle: 'LG-007-GG', make: 'Toyota Coaster',    type: 'Transmission Service',priority: 'High',     cost: 1100, laborCost: 400,  partsCost: 700,  technician: 'AutoFix Ltd',      date: '2024-09-03', completedDate: '2024-09-06', notes: 'Gearbox fluid flush and filter.',    status: 'closed'      },
-  { id: 'M-008', vehicle: 'KN-008-HH', make: 'Ford Transit',       type: 'Battery Replacement', priority: 'Low',      cost: 180,  laborCost: 30,   partsCost: 150,  technician: 'Kano Auto Works',  date: '2024-09-14', completedDate: null,          notes: 'Battery dead, replaced with new.',   status: 'open'        },
-  { id: 'M-009', vehicle: 'EN-009-II', make: 'Toyota Hiace',       type: 'Suspension Repair',   priority: 'Critical', cost: 2400, laborCost: 800,  partsCost: 1600, technician: 'ProEngine NG',     date: '2024-09-02', completedDate: '2024-09-09', notes: 'Front suspension arms replaced.',    status: 'closed'      },
-  { id: 'M-010', vehicle: 'IB-010-JJ', make: 'Mercedes Sprinter',  type: 'Coolant Flush',       priority: 'Medium',   cost: 160,  laborCost: 60,   partsCost: 100,  technician: 'Emeka Repairs',    date: '2024-09-11', completedDate: '2024-09-11', notes: 'Coolant system flushed and refilled.', status: 'closed'    },
+// ── Constants ──────────────────────────────────────────────────────────────────
+const MAINTENANCE_TYPES = [
+  'Oil Change', 'Tyre Replacement', 'Brake Inspection',
+  'Pollution Certificate Check', 'General Service',
+  'Engine Overhaul', 'Battery Replacement', 'AC Service', 'Annual Inspection',
 ]
 
 const STATUS_TABS = [
-  { key: 'all',         label: 'All'         },
-  { key: 'open',        label: 'Open'        },
-  { key: 'in_progress', label: 'In Progress' },
-  { key: 'closed',      label: 'Closed'      },
+  { key: 'all',       label: 'All'       },
+  { key: 'ACTIVE',    label: 'Active'    },
+  { key: 'COMPLETED', label: 'Completed' },
+  { key: 'CANCELLED', label: 'Cancelled' },
 ]
 
-const PRIORITY_COLOR = {
-  Low:      'bg-slate-100 text-slate-600',
-  Medium:   'bg-blue-50 text-blue-700',
-  High:     'bg-amber-50 text-amber-700',
-  Critical: 'bg-red-50 text-red-700',
-}
+const PAGE_SIZE = 10
 
-const STATS = [
-  { label: 'Total Records', value: ALL_RECORDS.length,                                                color: 'text-slate-900' },
-  { label: 'Open',          value: ALL_RECORDS.filter(r => r.status === 'open').length,               color: 'text-red-500'   },
-  { label: 'In Progress',   value: ALL_RECORDS.filter(r => r.status === 'in_progress').length,        color: 'text-amber-600' },
-  { label: 'Closed',        value: ALL_RECORDS.filter(r => r.status === 'closed').length,             color: 'text-green-600' },
-  { label: 'Critical',      value: ALL_RECORDS.filter(r => r.priority === 'Critical').length,         color: 'text-red-600'   },
-  { label: 'Total Cost',    value: formatCurrency(ALL_RECORDS.reduce((s, r) => s + r.cost, 0)),       color: 'text-brand-600' },
-]
+const errMsg = (err) =>
+  err?.response?.data?.message ?? err?.message ?? 'Something went wrong.'
 
-const PAGE_SIZE = 8
-
-const COLUMNS = [
-  { key: 'id',         label: 'ID',           sortable: true, width: '90px',
-    render: (v) => <span className="font-semibold text-brand-600 font-mono text-xs">{v}</span> },
-  { key: 'vehicle',    label: 'Vehicle',       sortable: true,
-    render: (v, row) => (
-      <div>
-        <span className="font-mono text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">{v}</span>
-        <p className="text-[11px] text-slate-400 mt-0.5">{row.make}</p>
-      </div>
-    )},
-  { key: 'type',       label: 'Service Type',  sortable: true,
-    render: (v) => (
-      <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
-          <Wrench size={11} className="text-amber-600" />
-        </div>
-        <span className="text-sm font-medium text-slate-800">{v}</span>
-      </div>
-    )},
-  { key: 'priority',   label: 'Priority',      sortable: true, width: '100px',
-    render: (v) => <span className={`badge ${PRIORITY_COLOR[v]}`}>{v}</span> },
-  { key: 'technician', label: 'Technician',
-    render: (v) => <span className="text-sm text-slate-600">{v}</span> },
-  { key: 'date',       label: 'Logged',        sortable: true,
-    render: (v) => <span className="text-slate-500 text-sm">{formatDate(v)}</span> },
-  { key: 'cost',       label: 'Cost',          sortable: true, align: 'right',
-    render: (v) => <span className="font-semibold text-slate-800">{formatCurrency(v)}</span> },
-  { key: 'status',     label: 'Status',        width: '130px',
-    render: (v) => <StatusBadge status={v} /> },
-]
+const today = () => new Date().toISOString().slice(0, 10)
 
 export default function MaintenancePage() {
+  // ── Data state ───────────────────────────────────────────────────────────────
+  const [records,   setRecords]   = useState([])
+  const [total,     setTotal]     = useState(0)
+  const [loading,   setLoading]   = useState(true)
+  const [error,     setError]     = useState(null)
+
+  // ── Filter / pagination ──────────────────────────────────────────────────────
   const [search,    setSearch]    = useState('')
   const [activeTab, setActiveTab] = useState('all')
   const [page,      setPage]      = useState(1)
-  const [selected,  setSelected]  = useState([])
-  const [detailRow, setDetailRow] = useState(null)
-  const [loading,   setLoading]   = useState(false)
 
-  const handleTabChange = (key) => {
-    setLoading(true); setActiveTab(key); setPage(1)
-    setTimeout(() => setLoading(false), 600)
+  // ── Create modal ─────────────────────────────────────────────────────────────
+  const [showCreate,    setShowCreate]    = useState(false)
+  const [vehicles,      setVehicles]      = useState([])
+  const [loadingVeh,    setLoadingVeh]    = useState(false)
+  const [createForm,    setCreateForm]    = useState({
+    vehicleId: '', maintenanceType: '', description: '', startDate: today(), cost: '', notes: '',
+  })
+  const [createLoading, setCreateLoading] = useState(false)
+  const [createError,   setCreateError]   = useState(null)
+
+  // ── Close modal ──────────────────────────────────────────────────────────────
+  const [closeRow,     setCloseRow]     = useState(null)
+  const [closeForm,    setCloseForm]    = useState({ cost: '', notes: '' })
+  const [closeLoading, setCloseLoading] = useState(false)
+  const [closeError,   setCloseError]   = useState(null)
+
+  // ── Fetch records ────────────────────────────────────────────────────────────
+  const fetchRecords = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const params = { page, limit: PAGE_SIZE }
+      if (activeTab !== 'all') params.status = activeTab
+      const res = await maintenanceApi.list(params)
+      const d   = res.data.data
+      setRecords(d.data ?? [])
+      setTotal(d.pagination?.total ?? 0)
+    } catch (err) {
+      setError(errMsg(err))
+    } finally {
+      setLoading(false)
+    }
+  }, [page, activeTab])
+
+  useEffect(() => { fetchRecords() }, [fetchRecords])
+
+  // ── Load vehicles for create form ────────────────────────────────────────────
+  const openCreate = async () => {
+    setCreateError(null)
+    setCreateForm({ vehicleId: '', maintenanceType: '', description: '', startDate: today(), cost: '', notes: '' })
+    setShowCreate(true)
+    setLoadingVeh(true)
+    try {
+      // Load all vehicles (not just available) so fleet manager can see what's in shop
+      const res = await vehiclesApi.getAll({ limit: 100 })
+      const all = res.data.data?.data ?? []
+      // Exclude RETIRED and ON_TRIP — only AVAILABLE and IN_SHOP are valid targets
+      setVehicles(all.filter(v => v.status !== 'RETIRED' && v.status !== 'ON_TRIP'))
+    } catch {
+      setCreateError('Failed to load vehicles.')
+    } finally {
+      setLoadingVeh(false)
+    }
   }
 
-  const filtered = useMemo(() => ALL_RECORDS.filter(r => {
-    const matchTab    = activeTab === 'all' || r.status === activeTab
-    const q           = search.toLowerCase()
-    const matchSearch = !q || r.id.toLowerCase().includes(q)
-      || r.vehicle.toLowerCase().includes(q)
-      || r.type.toLowerCase().includes(q)
-      || r.technician.toLowerCase().includes(q)
-    return matchTab && matchSearch
-  }), [search, activeTab])
+  // ── Tab counts ───────────────────────────────────────────────────────────────
+  const tabCounts = useMemo(() => {
+    const counts = { all: total }
+    STATUS_TABS.slice(1).forEach(t => {
+      counts[t.key] = records.filter(r => r.status === t.key).length
+    })
+    return counts
+  }, [records, total])
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-  const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  // ── Stats ────────────────────────────────────────────────────────────────────
+  const stats = useMemo(() => {
+    const totalCost = records.reduce((s, r) => s + parseFloat(r.cost ?? 0), 0)
+    return [
+      { label: 'Total',     value: total,                                                  color: 'text-slate-900'   },
+      { label: 'Active',    value: records.filter(r => r.status === 'ACTIVE').length,      color: 'text-amber-600'   },
+      { label: 'Completed', value: records.filter(r => r.status === 'COMPLETED').length,   color: 'text-emerald-600' },
+      { label: 'Cancelled', value: records.filter(r => r.status === 'CANCELLED').length,   color: 'text-slate-500'   },
+      { label: 'Total Cost',value: formatCurrency(totalCost),                              color: 'text-brand-600'   },
+    ]
+  }, [records, total])
 
-  const getTabCount = (key) =>
-    key === 'all' ? ALL_RECORDS.length : ALL_RECORDS.filter(r => r.status === key).length
+  // ── Client-side search filter ────────────────────────────────────────────────
+  const filtered = useMemo(() => {
+    if (!search.trim()) return records
+    const q = search.toLowerCase()
+    return records.filter(r =>
+      r.maintenanceType?.toLowerCase().includes(q) ||
+      r.vehicle?.registrationNumber?.toLowerCase().includes(q) ||
+      r.vehicle?.name?.toLowerCase().includes(q)
+    )
+  }, [records, search])
+
+  // ── Create submit ────────────────────────────────────────────────────────────
+  const handleCreate = async () => {
+    setCreateError(null)
+    if (!createForm.vehicleId)       { setCreateError('Select a vehicle.'); return }
+    if (!createForm.maintenanceType) { setCreateError('Select a maintenance type.'); return }
+    if (!createForm.startDate)       { setCreateError('Start date is required.'); return }
+
+    setCreateLoading(true)
+    try {
+      await maintenanceApi.create({
+        vehicleId:       parseInt(createForm.vehicleId),
+        maintenanceType: createForm.maintenanceType,
+        description:     createForm.description || undefined,
+        startDate:       new Date(createForm.startDate).toISOString(),
+        cost:            createForm.cost ? parseFloat(createForm.cost) : 0,
+        notes:           createForm.notes || undefined,
+      })
+      setShowCreate(false)
+      fetchRecords()
+    } catch (err) {
+      setCreateError(errMsg(err))
+    } finally {
+      setCreateLoading(false)
+    }
+  }
+
+  // ── Close submit ─────────────────────────────────────────────────────────────
+  const handleClose = async () => {
+    setCloseError(null)
+    setCloseLoading(true)
+    try {
+      await maintenanceApi.close(closeRow.id, {
+        cost:  closeForm.cost  ? parseFloat(closeForm.cost)  : undefined,
+        notes: closeForm.notes || undefined,
+      })
+      setCloseRow(null)
+      fetchRecords()
+    } catch (err) {
+      setCloseError(errMsg(err))
+    } finally {
+      setCloseLoading(false)
+    }
+  }
+
+  // ── Table columns ────────────────────────────────────────────────────────────
+  const COLUMNS = [
+    { key: 'id', label: 'ID', width: '70px',
+      render: (v) => <span className="font-mono text-xs text-brand-600 font-semibold">#{v}</span> },
+    { key: 'vehicle', label: 'Vehicle',
+      render: (_, row) => (
+        <div className="flex items-center gap-1.5">
+          <Truck size={12} className="text-slate-400 shrink-0" />
+          <div>
+            <span className="font-mono text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">
+              {row.vehicle?.registrationNumber ?? '—'}
+            </span>
+            <p className="text-[11px] text-slate-400 mt-0.5">{row.vehicle?.name ?? ''}</p>
+          </div>
+        </div>
+      )},
+    { key: 'maintenanceType', label: 'Service Type', sortable: true,
+      render: (v) => (
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+            <Wrench size={11} className="text-amber-600" />
+          </div>
+          <span className="text-sm font-medium text-slate-800">{v}</span>
+        </div>
+      )},
+    { key: 'startDate', label: 'Start Date', sortable: true,
+      render: (v) => <span className="text-xs text-slate-500">{formatDate(v)}</span> },
+    { key: 'endDate', label: 'End Date',
+      render: (v) => <span className="text-xs text-slate-500">{v ? formatDate(v) : '—'}</span> },
+    { key: 'cost', label: 'Cost (₹)', align: 'right',
+      render: (v) => <span className="font-semibold text-slate-800">{formatCurrency(parseFloat(v ?? 0))}</span> },
+    { key: 'status', label: 'Status', width: '120px',
+      render: (v) => <StatusBadge status={v} /> },
+    { key: '_actions', label: '', width: '60px',
+      render: (_, row) => row.status === 'ACTIVE' ? (
+        <button
+          title="Close Maintenance"
+          onClick={(e) => { e.stopPropagation(); setCloseRow(row); setCloseForm({ cost: String(parseFloat(row.cost ?? 0)), notes: '' }); setCloseError(null) }}
+          className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+        >
+          <CheckCircle size={15} />
+        </button>
+      ) : null },
+  ]
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   return (
     <div className="page-container">
@@ -122,70 +235,61 @@ export default function MaintenancePage() {
       <PageHeader
         title="Maintenance"
         subtitle="Track vehicle service records, repairs, and scheduled maintenance."
-        badge={<span className="badge bg-amber-100 text-amber-700 ring-1 ring-amber-200">{ALL_RECORDS.length} records</span>}
+        badge={<span className="badge bg-amber-100 text-amber-700 ring-1 ring-amber-200">{total} records</span>}
         actions={
           <>
-            <Button variant="secondary" size="sm" leftIcon={<Download size={14} />}>Export</Button>
-            <Button size="sm" leftIcon={<Plus size={14} />}>Log Maintenance</Button>
+            <Button variant="secondary" size="sm" leftIcon={<RefreshCw size={14} />} onClick={fetchRecords} loading={loading}>
+              Refresh
+            </Button>
+            <Button size="sm" leftIcon={<Plus size={14} />} onClick={openCreate}>
+              Log Maintenance
+            </Button>
           </>
         }
       />
 
-      <StatsGrid stats={STATS} />
+      <StatsGrid stats={stats} />
 
       <Card padding="none">
-        {/* Toolbar */}
         <div className="px-5 py-4 border-b border-slate-100 space-y-3">
           <FilterTabBar
             tabs={STATUS_TABS}
             active={activeTab}
-            onChange={handleTabChange}
-            getCount={getTabCount}
+            onChange={(key) => { setActiveTab(key); setPage(1) }}
+            getCount={(key) => tabCounts[key] ?? 0}
           />
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <SearchBar
-              placeholder="Search by ID, vehicle, type, technician…"
-              value={search}
-              onChange={(v) => { setSearch(v); setPage(1) }}
-              className="w-full sm:w-72"
-            />
-            <BulkActionBar
-              count={selected.length}
-              actions={<Button variant="danger" size="sm">Delete</Button>}
-            />
-          </div>
+          <SearchBar
+            placeholder="Search vehicle, service type…"
+            value={search}
+            onChange={(v) => { setSearch(v); setPage(1) }}
+            className="w-full sm:w-72"
+          />
         </div>
 
         {loading ? (
           <Loader variant="skeleton" lines={8} className="p-5" />
+        ) : error ? (
+          <div className="p-10 text-center">
+            <p className="text-sm text-red-600 mb-3">{error}</p>
+            <Button size="sm" variant="secondary" onClick={fetchRecords}>Retry</Button>
+          </div>
         ) : (
           <Table
-            columns={[
-              ...COLUMNS,
-              { key: '_actions', label: '', width: '60px',
-                render: (_, row) => (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setDetailRow(row) }}
-                    className="p-1.5 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
-                  >
-                    <Eye size={15} />
-                  </button>
-                )},
-            ]}
-            data={paginated}
-            selectable selected={selected} onSelect={setSelected}
-            onRowClick={setDetailRow}
+            columns={COLUMNS}
+            data={filtered}
             emptyTitle="No maintenance records"
-            emptyDesc={search ? 'Try a different search term.' : 'Log your first maintenance record.'}
-            emptyAction={!search && <Button size="sm" leftIcon={<Plus size={14} />}>Log Maintenance</Button>}
+            emptyDesc={search || activeTab !== 'all' ? 'Try clearing filters.' : 'Log your first maintenance record.'}
+            emptyAction={!search && activeTab === 'all' && (
+              <Button size="sm" leftIcon={<Plus size={14} />} onClick={openCreate}>Log Maintenance</Button>
+            )}
           />
         )}
 
-        {!loading && (
+        {!loading && !error && (
           <PaginationBar
             page={page}
             totalPages={totalPages}
-            totalItems={filtered.length}
+            totalItems={total}
             pageSize={PAGE_SIZE}
             itemLabel="records"
             onPageChange={setPage}
@@ -193,56 +297,151 @@ export default function MaintenancePage() {
         )}
       </Card>
 
-      {/* Maintenance Detail Modal */}
+      {/* ── Create Maintenance Modal ─────────────────────────────────────────── */}
       <Modal
-        isOpen={!!detailRow} onClose={() => setDetailRow(null)}
-        title="Maintenance Record" subtitle={detailRow?.id} size="lg"
+        isOpen={showCreate}
+        onClose={() => setShowCreate(false)}
+        title="Log Maintenance"
+        subtitle="Vehicle will be set to IN_SHOP on creation."
+        size="md"
         footer={
           <>
-            <Button variant="secondary" size="sm" onClick={() => setDetailRow(null)}>Close</Button>
-            <Button size="sm">Edit Record</Button>
+            <Button variant="secondary" size="sm" onClick={() => setShowCreate(false)} disabled={createLoading}>Cancel</Button>
+            <Button size="sm" loading={createLoading} onClick={handleCreate}>Create Record</Button>
           </>
         }
       >
-        {detailRow && (
-          <div className="space-y-5">
-            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-              <StatusBadge status={detailRow.status} size="lg" />
-              <span className={`badge ${PRIORITY_COLOR[detailRow.priority]}`}>{detailRow.priority} Priority</span>
-            </div>
+        <div className="space-y-4">
+          {createError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">{createError}</div>
+          )}
 
-            <DetailInfoGrid fields={[
-              { icon: Truck,      label: 'Vehicle',     value: `${detailRow.vehicle} — ${detailRow.make}` },
-              { icon: Wrench,     label: 'Service',     value: detailRow.type                             },
-              { icon: User,       label: 'Technician',  value: detailRow.technician                       },
-              { icon: Calendar,   label: 'Date Logged', value: formatDate(detailRow.date)                 },
-              { icon: Calendar,   label: 'Completed',   value: detailRow.completedDate ? formatDate(detailRow.completedDate) : 'Pending' },
-              { icon: DollarSign, label: 'Total Cost',  value: formatCurrency(detailRow.cost)             },
-            ]} />
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 bg-blue-50 rounded-xl text-center">
-                <p className="text-xs text-slate-500 mb-1">Labour Cost</p>
-                <p className="font-bold text-blue-700">{formatCurrency(detailRow.laborCost)}</p>
-              </div>
-              <div className="p-3 bg-amber-50 rounded-xl text-center">
-                <p className="text-xs text-slate-500 mb-1">Parts Cost</p>
-                <p className="font-bold text-amber-700">{formatCurrency(detailRow.partsCost)}</p>
-              </div>
-            </div>
-
-            {detailRow.notes && (
-              <div className="p-4 bg-slate-50 rounded-xl">
-                <div className="flex items-center gap-2 mb-2">
-                  <FileText size={13} className="text-slate-400" />
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Notes</p>
-                </div>
-                <p className="text-sm text-slate-700 leading-relaxed">{detailRow.notes}</p>
-              </div>
+          <MField label="Vehicle *">
+            {loadingVeh ? (
+              <div className="text-xs text-slate-500 py-2">Loading vehicles…</div>
+            ) : (
+              <select
+                value={createForm.vehicleId}
+                onChange={e => setCreateForm(f => ({ ...f, vehicleId: e.target.value }))}
+                className={inputCls()}
+              >
+                <option value="">Select vehicle…</option>
+                {vehicles.map(v => (
+                  <option key={v.id} value={v.id}>
+                    {v.registrationNumber} — {v.name} [{v.status}]
+                  </option>
+                ))}
+              </select>
             )}
+          </MField>
+
+          <MField label="Maintenance Type *">
+            <select
+              value={createForm.maintenanceType}
+              onChange={e => setCreateForm(f => ({ ...f, maintenanceType: e.target.value }))}
+              className={inputCls()}
+            >
+              <option value="">Select type…</option>
+              {MAINTENANCE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </MField>
+
+          <MField label="Description">
+            <input
+              type="text"
+              value={createForm.description}
+              onChange={e => setCreateForm(f => ({ ...f, description: e.target.value }))}
+              placeholder="Brief description of work to be done"
+              className={inputCls()}
+            />
+          </MField>
+
+          <div className="grid grid-cols-2 gap-3">
+            <MField label="Start Date *">
+              <input
+                type="date"
+                value={createForm.startDate}
+                onChange={e => setCreateForm(f => ({ ...f, startDate: e.target.value }))}
+                className={inputCls()}
+              />
+            </MField>
+            <MField label="Estimated Cost (₹)">
+              <input
+                type="number" min="0" step="0.01"
+                value={createForm.cost}
+                onChange={e => setCreateForm(f => ({ ...f, cost: e.target.value }))}
+                placeholder="e.g. 3500"
+                className={inputCls()}
+              />
+            </MField>
           </div>
-        )}
+
+          <MField label="Notes">
+            <textarea
+              rows={2}
+              value={createForm.notes}
+              onChange={e => setCreateForm(f => ({ ...f, notes: e.target.value }))}
+              placeholder="Additional notes…"
+              className={`${inputCls()} h-auto py-2 resize-none`}
+            />
+          </MField>
+        </div>
+      </Modal>
+
+      {/* ── Close Maintenance Modal ──────────────────────────────────────────── */}
+      <Modal
+        isOpen={!!closeRow}
+        onClose={() => setCloseRow(null)}
+        title="Close Maintenance"
+        subtitle={`${closeRow?.maintenanceType} — ${closeRow?.vehicle?.registrationNumber ?? ''}`}
+        size="sm"
+        footer={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => setCloseRow(null)} disabled={closeLoading}>Cancel</Button>
+            <Button size="sm" variant="success" loading={closeLoading} onClick={handleClose}>Mark Completed</Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          {closeError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">{closeError}</div>
+          )}
+          <p className="text-sm text-slate-600">
+            Closing this record will mark it <strong>COMPLETED</strong> and restore the vehicle to <strong>AVAILABLE</strong>.
+          </p>
+          <MField label="Final Cost (₹)">
+            <input
+              type="number" min="0" step="0.01"
+              value={closeForm.cost}
+              onChange={e => setCloseForm(f => ({ ...f, cost: e.target.value }))}
+              placeholder="e.g. 3500"
+              className={inputCls()}
+            />
+          </MField>
+          <MField label="Closing Notes">
+            <textarea
+              rows={2}
+              value={closeForm.notes}
+              onChange={e => setCloseForm(f => ({ ...f, notes: e.target.value }))}
+              placeholder="Work completed, parts replaced, next service due…"
+              className={`${inputCls()} h-auto py-2 resize-none`}
+            />
+          </MField>
+        </div>
       </Modal>
     </div>
   )
 }
+
+// ── Small helpers ──────────────────────────────────────────────────────────────
+function MField({ label, children }) {
+  return (
+    <label className="block">
+      <span className="text-xs font-medium text-slate-600">{label}</span>
+      <div className="mt-1">{children}</div>
+    </label>
+  )
+}
+
+const inputCls = () =>
+  'w-full h-9 px-3 text-sm border border-slate-200 rounded-xl outline-none transition bg-white text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500'
