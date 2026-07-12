@@ -1,4 +1,4 @@
-const MESSAGES = {
+export const MESSAGES = {
   // Vehicle
   VEHICLE_NOT_FOUND: 'Vehicle not found.',
   VEHICLE_REG_EXISTS: 'Vehicle registration number already exists.',
@@ -50,5 +50,3 @@ const MESSAGES = {
   INTERNAL_ERROR: 'Internal server error.',
   VALIDATION_ERROR: 'Validation failed.',
 };
-
-module.exports = { MESSAGES };
