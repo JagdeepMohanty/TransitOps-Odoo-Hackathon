@@ -1,4 +1,4 @@
-const HTTP_STATUS = {
+export const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,
   NO_CONTENT: 204,
@@ -8,7 +8,6 @@ const HTTP_STATUS = {
   NOT_FOUND: 404,
   CONFLICT: 409,
   UNPROCESSABLE: 422,
+  NOT_IMPLEMENTED: 501,
   INTERNAL_SERVER_ERROR: 500,
 };
-
-module.exports = { HTTP_STATUS };
