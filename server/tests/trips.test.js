@@ -430,6 +430,12 @@ describe('Trip Module', () => {
       await req('POST', `/trips/${newId}/cancel`, null, token);
     });
 
+    it('rejects deleting a COMPLETED trip', async () => {
+      // tripId was completed earlier in the suite
+      const delRes = await req('DELETE', `/trips/${tripId}`, null, token);
+      assert.equal(delRes.status, 409);
+    });
+
   });
 
 });
