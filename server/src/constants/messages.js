@@ -46,6 +46,15 @@ export const MESSAGES = {
   EXPENSE_NOT_FOUND: 'Expense not found.',
   EXPENSE_CREATED: 'Expense recorded successfully.',
 
+  // Auth
+  LOGIN_SUCCESS: 'Login successful',
+  LOGOUT_SUCCESS: 'Logged out successfully',
+  INVALID_CREDENTIALS: 'Invalid email or password',
+  UNAUTHORIZED: 'Authentication required',
+  FORBIDDEN: 'You do not have permission to perform this action',
+  TOKEN_EXPIRED: 'Session expired, please log in again',
+  USER_NOT_FOUND: 'User no longer exists',
+
   // General
   INTERNAL_ERROR: 'Internal server error.',
   VALIDATION_ERROR: 'Validation failed.',
