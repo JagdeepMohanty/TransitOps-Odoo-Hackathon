@@ -19,7 +19,7 @@ TransitOps enables fleet managers, dispatchers, safety officers, and financial a
 
 ---
 
-## Hour 1 Status — Backend Foundation Complete
+## Backend Status — Complete
 
 | Component | Status |
 |-----------|--------|
@@ -36,14 +36,14 @@ TransitOps enables fleet managers, dispatchers, safety officers, and financial a
 | Root dev scripts | ✅ |
 | API contract document | ✅ |
 | Database setup guide | ✅ |
-| Authentication (JWT + RBAC) | 🔜 Hour 2 |
-| Vehicle CRUD | 🔜 Hour 2 |
-| Driver CRUD | 🔜 Hour 2 |
-| Trip dispatch workflow | 🔜 Hour 2 |
-| Maintenance management | 🔜 Hour 2 |
-| Fuel logs & expenses | 🔜 Hour 2 |
-| Dashboard KPIs | 🔜 Hour 2 |
-| Reports & CSV export | 🔜 Hour 3 |
+| Authentication (JWT + RBAC) | ✅ |
+| Vehicle CRUD | ✅ |
+| Driver CRUD | ✅ |
+| Trip dispatch workflow | ✅ |
+| Maintenance management | ✅ |
+| Fuel logs & expenses | ✅ |
+| Dashboard KPIs | ✅ |
+| Reports & CSV export | ✅ |
 
 ---
 
