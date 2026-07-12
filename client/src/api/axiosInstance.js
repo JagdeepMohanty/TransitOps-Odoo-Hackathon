@@ -4,7 +4,7 @@ const TOKEN_KEY = 'transitops_token'
 const USER_KEY  = 'transitops_user'
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001/api',
 })
 
 axiosInstance.interceptors.request.use((config) => {
