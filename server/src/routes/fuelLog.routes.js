@@ -1,14 +1,15 @@
 import { Router } from 'express';
-import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { getFuelLogs, createFuelLog } from '../controllers/fuelLog.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+import { authorize } from '../middleware/role.middleware.js';
+import { validate } from '../middleware/validate.middleware.js';
+import { createFuelLogSchema } from '../validators/fuelLog.validator.js';
 
 const router = Router();
 
-router.all('*', (req, res) => {
-  res.status(HTTP_STATUS.NOT_IMPLEMENTED).json({
-    success: false,
-    message: 'Fuel log module will be implemented in the next phase',
-    errors: [],
-  });
-});
+router.use(authenticate);
+
+router.get('/', getFuelLogs);
+router.post('/', authorize('DISPATCHER', 'FLEET_MANAGER'), validate(createFuelLogSchema), createFuelLog);
 
 export default router;

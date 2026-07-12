@@ -1,14 +1,18 @@
 import { Router } from 'express';
-import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { getMaintenance, getMaintenanceById, createMaintenance, updateMaintenance, closeMaintenance } from '../controllers/maintenance.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+import { authorize } from '../middleware/role.middleware.js';
+import { validate } from '../middleware/validate.middleware.js';
+import { createMaintenanceSchema, closeMaintenanceSchema } from '../validators/maintenance.validator.js';
 
 const router = Router();
 
-router.all('*', (req, res) => {
-  res.status(HTTP_STATUS.NOT_IMPLEMENTED).json({
-    success: false,
-    message: 'Maintenance module will be implemented in the next phase',
-    errors: [],
-  });
-});
+router.use(authenticate);
+
+router.get('/', getMaintenance);
+router.get('/:id', getMaintenanceById);
+router.post('/', authorize('FLEET_MANAGER'), validate(createMaintenanceSchema), createMaintenance);
+router.put('/:id', authorize('FLEET_MANAGER'), updateMaintenance);
+router.post('/:id/close', authorize('FLEET_MANAGER'), validate(closeMaintenanceSchema), closeMaintenance);
 
 export default router;

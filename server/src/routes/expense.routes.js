@@ -1,14 +1,15 @@
 import { Router } from 'express';
-import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { getExpenses, createExpense } from '../controllers/expense.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+import { authorize } from '../middleware/role.middleware.js';
+import { validate } from '../middleware/validate.middleware.js';
+import { createExpenseSchema } from '../validators/expense.validator.js';
 
 const router = Router();
 
-router.all('*', (req, res) => {
-  res.status(HTTP_STATUS.NOT_IMPLEMENTED).json({
-    success: false,
-    message: 'Expense module will be implemented in the next phase',
-    errors: [],
-  });
-});
+router.use(authenticate);
+
+router.get('/', getExpenses);
+router.post('/', authorize('DISPATCHER', 'FLEET_MANAGER', 'FINANCIAL_ANALYST'), validate(createExpenseSchema), createExpense);
 
 export default router;

@@ -1,14 +1,13 @@
 import { Router } from 'express';
-import { HTTP_STATUS } from '../constants/httpStatus.js';
+import { getReports, exportReportsCsv } from '../controllers/report.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+import { authorize } from '../middleware/role.middleware.js';
 
 const router = Router();
 
-router.all('*', (req, res) => {
-  res.status(HTTP_STATUS.NOT_IMPLEMENTED).json({
-    success: false,
-    message: 'Reports module will be implemented in the next phase',
-    errors: [],
-  });
-});
+router.use(authenticate);
+
+router.get('/', authorize('FLEET_MANAGER', 'FINANCIAL_ANALYST'), getReports);
+router.get('/export/csv', authorize('FLEET_MANAGER', 'FINANCIAL_ANALYST'), exportReportsCsv);
 
 export default router;

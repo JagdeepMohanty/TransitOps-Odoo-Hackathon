@@ -7,6 +7,16 @@ import { HTTP_STATUS } from '../constants/httpStatus.js';
 const errorMiddleware = (err, req, res, next) => {
   const isDev = process.env.NODE_ENV === 'development';
 
+  // Prisma connection / initialization errors — DB unreachable
+  if (err instanceof Prisma.PrismaClientInitializationError) {
+    console.error('Database connection error:', err.message);
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Database is currently unavailable',
+      errors: [],
+    });
+  }
+
   // Operational ApiError
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({

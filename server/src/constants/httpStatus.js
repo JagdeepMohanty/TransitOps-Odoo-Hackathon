@@ -1,4 +1,4 @@
-export const HTTP_STATUS = Object.freeze({
+export const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,
   NO_CONTENT: 204,
@@ -10,4 +10,4 @@ export const HTTP_STATUS = Object.freeze({
   UNPROCESSABLE: 422,
   INTERNAL_SERVER_ERROR: 500,
   NOT_IMPLEMENTED: 501,
-});
+};
